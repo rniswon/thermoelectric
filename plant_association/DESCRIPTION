@@ -1,0 +1,33 @@
+Package: EIAplantAssociation
+Type: Package
+Title: EIAplantAssociation 
+Version: 1.0
+Date: 
+Author: Lillian Gorman Sanisaca
+Maintainer: Lillian Gorman Sanisaca <lgormansanisaca@usgs.gov>
+Description: Method to generate Boiler-Generator and Boiler-Generator-Cooling assocations using EIA data pulled from the web.
+Roxygen: list(markdown=TRUE)
+VignetteBuilder: knitr
+Depends:
+  R(>= 3.6.0),
+  methods
+Imports:
+  dplyr,
+  reshape2,
+  testthat,
+  devtools,
+  plyr,
+  openxlsx,
+  remotes,
+  data.table
+Suggests:
+Collate:
+  'associate.R'        
+  'bocoo_associate.R'          
+  'bogen_assocv_v2.R'
+  'compareKeys_2D.R'            
+  'compareKeys_multiPlantbo.R'          
+  'compareKeys_multiPlantbo2.R'        
+  'compilePlantInfo_excel.R'       
+  'executeBogenAssoc.R'            
+RoxygenNote: 7.1.0

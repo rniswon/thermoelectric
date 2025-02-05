@@ -1,0 +1,7 @@
+﻿InputFile,SheetName,SheetDescription,ImportFunc,VarName,RequiredVarDescription,programVarName
+6_1_EnviroAssoc_Y2015.xlsx,Boiler Generator,"Form EIA-860 Data - Schedule 6A, 'Boiler / Generator Associations'",import_bogen_data.R,Plant.Code,unique plant identifier,Plant.Code
+6_1_EnviroAssoc_Y2015.xlsx,Boiler Generator,"Form EIA-860 Data - Schedule 6A, 'Boiler / Generator Associations'",import_bogen_data.R,Boiler.ID,unique boiler identifier,Boiler.ID
+6_1_EnviroAssoc_Y2015.xlsx,Boiler Generator,"Form EIA-860 Data - Schedule 6A, 'Boiler / Generator Associations'",import_bogen_data.R,Generator.ID,unique generator identifier,Generator.ID
+6_2_EnviroEquip_Y2015.xlsx,Boiler Info & Design Parameters,"Form EIA-860 Data - Schedule 6C, 'Boiler Information - Design Parameters'",import_boiler_design_data.R,Plant.Code,Unique plant identifier,Plant.Code
+6_2_EnviroEquip_Y2015.xlsx,Boiler Info & Design Parameters,"Form EIA-860 Data - Schedule 6C, 'Boiler Information - Design Parameters'",import_boiler_design_data.R,Boiler.ID,unique boiler identifier,Boiler.ID
+6_2_EnviroEquip_Y2015.xlsx,Boiler Info & Design Parameters,"Form EIA-860 Data - Schedule 6C, 'Boiler Information - Design Parameters'",import_boiler_design_data.R,Boiler Status,boiler status code,Boiler.Status

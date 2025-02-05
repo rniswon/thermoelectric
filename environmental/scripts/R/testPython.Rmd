@@ -1,0 +1,31 @@
+---
+title: "testPython"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=TRUE}
+library(reticulate)
+use_python("C:/Users/galanter/Anaconda3")
+```
+
+```{python}
+#conda install 
+import numpy as np
+my_python_array = np.array([2,4,6,8])
+for item in my_python_array:
+    print(item)
+```
+
+```{r}
+my_r_array <- py$my_python_array
+class(my_r_array)
+```
+
+
+```{r}
+my_r_vector <- as.vector(py$my_python_array)
+class(my_r_vector)
+my_r_vector <- my_r_vector * 2
+
+write.csv(my_r_vector,file="C:/WU/Thermoelectric/environmental/testPY.csv")
+```

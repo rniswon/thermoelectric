@@ -1,0 +1,21 @@
+#! /bin/sh
+#
+#  File - env_long_to_wide
+#
+#  Purpose - Merge condenser duty and gridMET environmental tables,
+#            and produce output files in rawInput_FEWSR_TOWER.csv
+#            format.
+#
+#  Author - Andrew Halper
+#
+
+# list the condenser duty output tables
+for condenser_duty in ../../CD_results/CD_results????.csv; do
+	# parse year from file name
+    year=$(basename "$condenser_duty" .csv | sed 's/CD_results//')
+	# invoke env_long_to_wide.py to merge and transform
+    python env_long_to_wide.py \
+	   "$condenser_duty" \
+	   for_PB/"$year"_gridMET_env_input.csv \
+	   "$year"_wide.csv
+done

@@ -1,0 +1,25 @@
+Package: EIAplantAssociation
+Type: Package
+Title: EIAplantAssociation 
+Version: 1.0
+Date: 
+Author: Lillian Gorman Sanisaca
+Maintainer: Lillian Gorman Sanisaca <lgormansanisaca@usgs.gov>
+Description: The EIAplantAssociation package includes methods to generate boiler-generator and boiler-generator-cooling associations using data reported to the EIA on thermoelectric plants data found here ((https://www.eia.gov/electricity/).  Data used by the EIAplantAssociation package comes from the following EIA forms: Form-923, Form-860, Form-767, Form-906920, and Form-759. Boiler-generator  and boiler-generator-cooling associations are critical to calculating condenser duty at thermoelectric plants since the data required to calculate fuel heat is reported by boiler and net generation is reported by generator, in order to calculate condenser duty The output of the EIAplantAssociation packages is formatted to be used by the condenserDuty package which calculates condenserDuty.  The EIAplantAssociation package expects the input data used for associations to be formatted according to the importThermoEIA package.
+VignetteBuilder: knitr
+Depends:
+  R(>= 4.0),
+  rmarkdown,
+  knitr,
+  testthat,
+Imports:
+  igraph,
+  plyr,
+  dplyr,
+  reshape2,
+  importThermoEIA,
+  magrittr
+Config/testthat/edition: 3
+License: CC0
+RoxygenNote: 7.2.3
+URL: https://github.com/rniswon/Thermoelectric/

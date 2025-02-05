@@ -1,0 +1,698 @@
+---
+title: "importThermoEIA"
+author: "Lillian Gorman Sanisaca, Andrew Halper"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Section 1: The importThermoEIA package
+The importThermoEIA package pulls data on thermoelectric plants,
+including forms 923, 860, 767, 906/920, and 759 from the [EIA web
+site](https://www.eia.gov/electricity/); and formats the data in a
+standard format, including consistent table and column names,
+regardless of the year in which the data was reported. This package
+addresses one of the main challenges of working with EIA data through
+time, which is the variability in naming conventions of file, sheet,
+and column names in the EIA forms. The importThermoEIA package
+includes tools to assist the user in developing crosswalks between the
+names used by the EIA and the scripts that use the data. The primary
+use of the importThermoEIA package is to format EIA data to be used by
+the EIAplantAssociation and condenserDuty packages. However, functions
+in importThermoEIA are general enough to be used to format EIA data
+for use in other custom scripts designed by the user.
+
+## Section 1.1: Required Software and Dependencies
+The importThermoEIA package must be run on an R version equal to or
+later than
+[4.0](https://cran.microsoft.com/snapshot/2021-01-17/bin/windows/base/old/4.0.0).
+Download the latest version of [R for
+Windows](https://cran.r-project.org/bin/windows/base/). An
+installation of Rtools (either
+[rtools40](https://github.com/r-windows/rtools-installer/releases/download/2022-02-06/rtools40-x86_64.exe)
+for R version 4.0.x through 4.1.x or [Rtools42 for
+Windows](https://cran.microsoft.com/bin/windows/Rtools/rtools42/rtools.html)
+for R version 4.2.x is required to install dependency packages.
+Microsoft Excel is also required. The following dependency R packages
+listed in the [`DESCRIPTION`](https://github.com/rniswon/Thermoelectric/blob/master/importThermoEIA/DESCRIPTION)
+file will be installed when importThermoEIA is installed:
+
+1. [dplyr](https://cran.r-project.org/web/packages/dplyr/index.html)
+2. [foreign](https://cran.r-project.org/web/packages/foreign/index.html)
+3. [knitr](https://cran.r-project.org/web/packages/knitr/index.html)
+4. [magrittr](https://cran.r-project.org/web/packages/magrittr/index.html)
+4. [openxlsx](https://cran.r-project.org/web/packages/openxlsx/)
+5. [readxl](https://cran.r-project.org/web/packages/readxl/index.html)
+6. [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html)
+7. [testthat](https://cran.r-project.org/web/packages/testthat/index.html)
+    
+## Section 1.2: How to Load the importThermoEIA Package
+To load the importThermoEIA package the user must use a method that
+installs R packages from [GitHub](https://github.com/) like
+`remotes::install_github()`. The remotes package must be installed
+first, then the importThermoEIA package using the code below.  Note
+that the `subdir` argument is necessary to load this package using
+`remotes::install_github()`. This is a one-time process for each
+version of R, or version of the importThermoEIA package. After the
+importThermoEIA package is installed, you can use it like any other R
+package with `library(importThermoEIA)`.
+
+```{r, echo=TRUE, eval=FALSE}
+# install the remotes package (one-time process)
+install.packages("remotes")
+
+# install the importThermoEIA package (one-time process)
+remotes::install_github(
+  repo = "https://github.com/rniswon/Thermoelectric",
+  subdir = "importThermoEIA", build_vignettes = T, upgrade = "never"
+)
+
+# load the importThermoEIA package (necessary each time the package is
+# used in a given R session)
+library(importThermoEIA)
+```
+
+When the importThermoEIA package is installed, all dependency packages
+from [Section 1.1](#section-1.1-required-software-and-dependencies)
+will be installed and the process will take a few minutes, but once
+the package is installed all dependencies will load with
+`library(importThermoEIA)`.
+
+# Section 2: Using the importThermoEIA Package
+The importThermoEIA package is designed to be used on EIA data from
+2000 forward, however, only data from 2008 forward can be used in the
+`EIAplantAssociation` and condenserDuty packages. For each year, the
+following EIA forms are imported. All files associated with each form
+will be imported into a single directory labeled with the year in
+which the data was reported and will be accessible to the user outside
+of the R environment.
+
+1. 2000-forward: [Form-860](https://www.eia.gov/electricity/data/eia860/)
+2. 2008-forward: [Form-923](https://www.eia.gov/electricity/data/eia923)
+3. 2001-2007: [Form-906/920](https://www.eia.gov/electricity/data/eia923)
+4. 2000-2005: [Form-767](https://www.eia.gov/electricity/data/eia767)
+5. 2000: [Form-759](https://www.eia.gov/electricity/data/eia923)
+
+## Section 2.1: Pull EIA Data From the Web Using `eia_webpull()`
+The first step in developing EIA tables for use in R is to pull the
+data directly from the [EIA web site](https://www.eia.gov/electricity/).
+The `eia_webpull()` function is used as follows:
+
+```{r, echo=TRUE, eval=FALSE}
+# directory where raw EIA pulled from the web will be saved
+EIAsaveOut <- "D:/"
+
+# specify which year's data to pull (subdirectory within EIAsaveOut
+# will be labeled with the eia_year)y
+eia_year <- 2020
+
+# pull and save EIA data from the web
+eia_webpull(eia_year, EIAyearSave)
+```
+
+## Section 2.2: Developing an EIA-code Crosswalk to Assign Consistent Names to EIA Data
+One of the biggest challenges to working with EIA data is the lack of
+consistency in file, sheet, and column naming conventions through
+time. While much of the data content remains the same, the file,
+sheet, and column names vary widely. The importThermoEIA package
+employs a crosswalk method to conform names of tables and columns of
+EIA data so that the same R scripts can be used to analyze data from
+2000 forward without customizing the analysis scripts for each year.
+A crosswalk is a table that assigns a `scriptTableName` and
+`scriptColname` to a given column of EIA data (`InputColumnName`) in a
+given EIA sheet (`InputSheetName`) for Microsoft Excel files in a
+given EIA file (`InputFile`) in a row-wise manner.
+
+## Section 2.3: The `crosswalk2015` Data Object
+An example crosswalk is included in the importThermoEIA package called
+crosswalk2015. This example crosswalk was build for the year 2015 and
+contains all required data for the EIAplantAssociation and
+condenserDuty packages. The `crosswalk2015` data frame can be accessed
+using the standard R data loading procedure shown below.
+
+```{r, echo=TRUE, eval=FALSE}
+# load the example crosswalk (will be called 'crosswalk2015' in the R
+# environment)
+#
+# the importThermoEIA package must be available to load the data
+#
+# use library(importThermoEIA) to make the importThermoEIA package
+# available in the R environment
+data("crosswalk2015")
+
+# save example crosswalk externally
+#
+# path to output example crosswalk as .xlsx file for external viewing
+outCrossPath <- "./crosswalk2015.xlsx"
+openxlsx::write.xlsx(crosswalk2015, file = outCrossPath, row.names = FALSE)
+
+```
+
+The `crosswalk2015` data object is a data frame with 210 rows and 8
+columns. The column descriptions are given in the table below.
+Columns flagged with `TRUE` in the `Required Column` *must* be present
+in a crosswalk to run importThermoEIA functions.
+
+```{r Table1, echo=FALSE}
+table1 <- structure(list(`Column Name` = c(
+  "`InputFile`", "`InputSheetName`",
+  "`InputSheetDescription`", "`InputColumnName`", "`InputColumnDescription`",
+  "`scriptImportFunc`", "`scriptTableName`", "`scriptColnames`"
+), `Column Description` = c(
+  "A character vector of EIA file names for the year 2015",
+  "A character vector of Excel sheet names for the year 2015",
+  paste0(
+    "A character vector of EIA data descriptions of a given Excel ",
+    "sheet for the year 2015"
+  ),
+  "A character vector of EIA column names for the year 2015",
+  paste0(
+    "A character vector of EIA data descriptions of a given column ",
+    "for the year 2015"
+  ),
+  paste0(
+    "A character vector of required import functions to be used if ",
+    "preparing data for the plant_association and/or condenserDuty ",
+    "packages"
+  ),
+  paste0(
+    "A character vector of required tables to be used if preparing ",
+    "data for the plant_association and/or condenserDuty packages"
+  ),
+  paste0(
+    "A character vector of required column names to be used if ",
+    "preparing data for the plant_association and/or condenserDuty ",
+    "packages"
+  )
+), `Required Column` = c(
+  "TRUE", "TRUE", "FALSE", "TRUE", "FALSE",
+  "TRUE (column must be present, but content can be blank)", "TRUE",
+  "TRUE"
+)), row.names = c(NA, 8L), class = "data.frame")
+
+knitr::kable(table1,
+  caption = "Table 1: Column Descriptions for crosswalk2015 data object."
+)
+```
+
+At first glance this table seems daunting, but there are built-in
+tools to aid the user in developing a custom crosswalk.
+
+If developing a crosswalk for use in the EIAplantAssociation and
+condenserDuty packages, all values from the `scriptTableName` and
+`scriptColnames` found in the `crosswalk2015` data object *must* be
+present with the exception of the values shown below which are not
+critical to the `EIAplantAssociation` or condenserDuty packages.
+These exceptions are not always present in years prior to 2015, but it
+is important to note that *if* the data are available, these exception
+rows should be included in the crosswalk. The `FirstYearRequired`
+column indicates the earliest year in which a column is required, if
+`NA` the column is never required.
+
+```{r echo=FALSE,eval=TRUE}
+table2 <- structure(list(scriptTableName = c(
+  "`bogen`", "`bocoo`", "`gen_860`",
+  "`boilerDesignData`", "`cooling`", "`cooling`", "`cooling`", "`cooling8D`",
+  "`cooling8D`", "`cooling8D`", "`cooling8D`", "`cooling8D`"
+), scriptColnames = c(
+  "`Plant.Name`",
+  "`Plant.Name`", "`Technology`", "`Plant.Name`", "`Plant.Name`",
+  "`Water.Source.Code`", "`Water.Type.Code`",
+  "`Month`", "`Withdrawal_MG`", "`Discharge_MG`",
+  "`Consumptive_MG`", "`Service_hrs`"
+), FirstYearFound = c(
+  NA, NA,
+  "2014", NA, NA, "2011", "2011", "2010", "2012", "2012", "2012",
+  "2010"
+)), row.names = c(NA, -12L), class = "data.frame")
+
+knitr::kable(
+  table2,
+  caption = paste0(
+    "Table 2: Rows in the crosswalk2015 object *not* required for all ",
+    "years to import data for use in the EIAplantAssocation and/or ",
+    "condenserDuty packages"
+  )
+)
+```
+
+If `prepCondenserDuty = TRUE` the `import_EIAData()` function will
+verify whether all required data for the EIAplantAssociation and
+condenserDuty packages is present. If there are missing
+`scriptTableNames`, `scriptColnames`, or `scriptImportFunc` required
+for the EIAplantAssociation and condenserDuty packages, the user
+will see this display in the console:
+
+<span style="color: red; font-family: monospace;">The following required
+tables/columns are NOT present</span>
+
+```
+                                                   InputSheetDescription       InputColumnDescription
+1 Form EIA-860 Data - Schedule 3, 'Generator Data' (Operable Units Only)                         <NA>
+2                 Form EIA-860 Data - Schedule 6D, 'Cooling System Data' Type of cooling water source
+3                 Form EIA-860 Data - Schedule 6D, 'Cooling System Data'        Type of cooling water
+4                            Form EIA-923, Power Plant Operations Report                         <NA>
+5                            Form EIA-923, Power Plant Operations Report                         <NA>
+6                            Form EIA-923, Power Plant Operations Report                         <NA>
+7                            Form EIA-923, Power Plant Operations Report                         <NA>
+8                            Form EIA-923, Power Plant Operations Report                         <NA>
+       scriptImportFunc scriptTableName    scriptColnames
+1 import_generator_data         gen_860        Technology
+2     import_coolingSys         cooling Water.Source.Code
+3     import_coolingSys         cooling   Water.Type.Code
+4             import_8D       cooling8D             Month
+5             import_8D       cooling8D     Withdrawal_MG
+6             import_8D       cooling8D      Discharge_MG
+7             import_8D       cooling8D    Consumptive_MG
+8             import_8D       cooling8D       Service_hrs
+```
+<span style="color: red; font-family: monospace;">EIAplantAssociation and/or
+consenserDuty analysis CANNOT be completed</span>
+
+The user must then edit the crosswalk to include the missing values and run
+`import_EIAData()` again.
+
+## Section 2.4: Using the `import_EIAData()` Function to Build a Crosswalk and Format Data
+The `import_EIAData()` function is used to both build a crosswalk and
+format the data once the crosswalk is complete. There are two possible
+paths to begin the crosswalk building process: (1) begin with the
+`crosswalk2015` data object, and (2) begin with a crosswalk file
+developed by the user in .xlsx format. Below are the arguments of the
+`import_EIAData()` function.
+
+```{r eval=TRUE,echo=FALSE}
+table3 <- structure(list(`Function Argument` = c(
+  "`path_InputData_Metafile`",
+  "`path_EIAInputData`", "`outputCSV`", "`path_outputCSV`",
+  "`useStandardCrosswalk`", "`prepCondenserDuty`", "`eia_year`"
+), Description = c(
+  paste0(
+    "Character string indicating path to crosswalk file must be in ",
+    ".xlsx format. If `useStandardCrosswalk == TRUE` then this is the ",
+    "path to which the crosswalk will be saved for further edit by the ",
+    "user."
+  ),
+  paste0(
+    "Character string indicating directory in which EIA data files ",
+    "have been extracted from ZIP files. If using the `eia_webpull()` ",
+    "function, the directory will be specified by the `eia_year`."
+  ),
+  paste0(
+    "`TRUE`/`FALSE` indicating whether or not to save formatted data as ",
+    "individual CSV files"
+  ),
+  "Path to directory in which to save the formatted EIA data as CSV files.",
+  paste0(
+    "`TRUE`/`FALSE` indicating whether the `data(\"crosswalk2015\")` file ",
+    "should be used to start the crosswalk development process. After ",
+    "the first run the resulting crosswalk will be saved as ",
+    "`path_InputData_Metafile`. Subsequent runs of `import_EIAData` ",
+    "should have `useStandardCrosswalk` as `FALSE`."
+  ),
+  paste0(
+    "`TRUE`/`FALSE` indicating whether checks should be made for ",
+    "data required to execute the `EIAplantAssocation` and/or ",
+    "condenserDuty packages"
+  ),
+  paste0(
+    "A numeric value indicating the year of EIA data being ",
+    "formatted. *Only* required if `prepCondenserDuty` is `TRUE`."
+  )
+)), row.names = c(NA, 7L), class = "data.frame")
+
+knitr::kable(
+  table3,
+  caption = "Table 3: import_EIAData() function argument descriptions"
+)
+```
+
+### Section 2.4.1: Run `import_EIAData()` Using the `crosswalk2015` Data Object
+To run `import_EIAData()` using the `crosswalk2015` object, set the
+`useStandardCrosswalk` argument to `TRUE` and specify the
+`path_InputData_Metafile` as the file to which the crosswalk will be
+saved for manual edits by the user.
+
+```{r, eval=FALSE, echo=TRUE}
+# run the import_EIAData() function for the first time using the
+# crosswalk2015 object
+
+# path to crosswalk being used to start
+path_InputData_Metafile <-
+  paste0(repoPath, "./newCrosswalk2020.xlsx")
+
+# path to EIA raw data
+#
+# path should be to directory with extracted data from ZIP files
+# (created by eia_webpull)
+path_EIAInputData <- paste(EIAyearSave, eia_year, sep = "/")
+
+# if saving formatted tables as csv set outputCSV <- TRUE; otherwise
+# outputCSV <- FALSE
+outputCSV <- TRUE
+
+# path to save formatted tables in CSV form (set
+# path_outputCSV <- NA, if outputCSV <- FALSE)
+path_outputCSV <- path_EIAInputData
+
+# execute import_EIAData for the first time
+inputData.list <-
+  import_EIAData(path_InputData_Metafile,
+    path_EIAInputData,
+    outputCSV,
+    path_outputCSV,
+    # this should only be used on the first run of the import_EIAData function
+    useStandardCrosswalk = TRUE,
+    # TRUE if prepping data for EIAplantAssociation and/or condenserDuty
+    # packages
+    prepCondenserDuty = TRUE,
+    # only required if prepCondenserDuty = TRUE
+    eia_year = 2020
+  )
+```
+
+If running the year 2015, no edits to the `crosswalk2015` will be
+required and the `import_EIAData()` function will return a list object
+with all tables from `scriptTableName` included. It is important to
+mention that all columns of any given `InputSheetName` will be
+accessible, but *only* columns listed in `InputColumnName` will be
+standardized and replaced by values in `scriptColnames`. When run on
+2015 data, using the `crosswalk2015` data object as the crosswalk, the
+`import_EIAData()` function will output the following in the console:
+
+```
+> inputData.list<-import_EIAData(path_InputData_Metafile,path_EIAInputData,outputCSV,path_outputCSV)
+[1] "bogen"
+Test passed
+[1] "bocoo"
+Test passed
+[1] "gen_860"
+Test passed
+[1] "retiredGenerators"
+[1] "generation.data"
+Test passed
+[1] "boilerFuelData"
+Test passed
+[1] "gen_fuel_data"
+Test passed
+[1] "boilerDesignData"
+Test passed
+[1] "cooling"
+Test passed
+[1] "plantInfo"
+Test passed
+[1] "cooling8D"
+Test passed
+```
+
+When developing a crosswalk for year different from 2015 using the
+`crosswalk2015` data object, you will likely see the following in the
+console:
+
+```
+> inputData.list<-import_EIAData(path_InputData_Metafile,path_EIAInputData,outputCSV,path_outputCSV)
+[1] "Please review the Input Data Metafile for highlighted errors."
+```
+
+In this case, the `import_EIAData()` function has modified the
+crosswalk to highlight data that it was unable to find in
+`path_EIAInputData`, and saved the resulting file to the location
+specified by `path_InputData_Metafile`. The `import_EIAData()`
+function works from left to right attempting to match what is in the
+crosswalk to what is in the `path_EIAInputData` directory. With each
+run of `import_EIAData()`, the user should open and resolve all
+highlighted values. For example, if running 2020 and the `InputFile`
+`6_1_EnviroAssoc_Y2015.xlsx` cannot be found, the user should look at
+the `InputSheetDescription`, and attempt to locate the data within the
+`path_EIAInputData` directory. In the case of 2020 the `InputFile`
+value should be changed to `6_1_EnviroAssoc_Y2020.xlsx`, but for the
+year 2008 it would be `F860_SCHEDULE6_Y08.xls`. All `InputFile` values
+should be present in the `path_EIAInputData` directory.
+
+Once all highlighted values have been resolved, *save and close* the
+crosswalk file. Once the file is closed the user should run
+`import_EIAData()` again, with the `useStandardCrosswalk` argument set
+to `FALSE.` If the crosswalk file has not been closed the function
+will return an error. If the `useStandardCrosswalk` argument is not
+set to `FALSE`, the edits that the user made to the
+`path_InputData_Metafile` will be overwritten with the original
+`crosswalk2015` data object. Use the following to run all subsequent
+runs of the `import_EIAData()` function:
+
+```{r, eval=FALSE, echo=TRUE}
+# execute import_EIAData for every time except the first time
+inputData.list <-
+  import_EIAData(path_InputData_Metafile,
+    path_EIAInputData,
+    outputCSV,
+    path_outputCSV,
+    # on every run but the first useStandardCrosswalk=FALSE
+    useStandardCrosswalk = FALSE,
+    # TRUE if prepping data for EIAplantAssociation and/or condenserDuty
+    # packages
+    prepCondenserDuty = TRUE,
+    # only required if prepCondenserDuty = TRUE
+    eia_year = 2020
+  )
+```
+
+The user should repeat the steps: (1) run `import_EIAData()`, and (2)
+resolve highlighted values in the crosswalk, until a list object is
+returned by the function. The list object will contain all tables
+found in the `scriptTableName` column of the crosswalk, and all column
+names found in `InputColumnNames` will have been changed to
+`scriptColnames`. If values appear in the `scriptImportFunc` column,
+those functions will have been run on the data to further format it
+for analysis.
+
+It is recommended that the user save the completed crosswalk for
+future use. Each time the user needs to access the formatted data,
+the `import_EIAData()` function can be used with the existing
+completed crosswalk, and since the crosswalk is complete no
+highlighted values will need to be resolved. The user can also use
+the `*.csv` files saved if `outputCSV = TRUE`.
+
+### Section 2.4.2: Run `import_EIAData()` Using an Existing Saved Crosswalk
+When using a user developed, saved crosswalk, there are a few
+requirements:
+
+1. The file *must* be in .xlsx format;
+2. All of the columns listed as a "Required Column" in Table 1 *must*
+   be present;
+3. All `scriptImportFunc` values *must* be names of functions
+   available in the user's R environment;
+4. If developing a crosswalk for use in the EIAplantAssociation
+   and/or condenserDuty packages, all `scripTableName`,
+   `scriptColnames`, and `scriptImportFunc` values found in the
+   `crosswalk2015` data object *must* be present, with the exception
+   of values found in Table 2.
+
+To run `import_EIAData()` on an existing crosswalk, use the code below:
+
+```{r, eval=FALSE, echo=TRUE}
+# run the import_EIAData() function for the first time using the
+# crosswalk2015 object
+
+# path to crosswalk being used to start
+path_InputData_Metafile <-
+  paste0(repoPath, "./newCrosswalk2020.xlsx")
+
+# path to EIA raw data
+#
+# path should be to directory with extracted data from ZIP files
+# (created by eia_webpull)
+path_EIAInputData <- paste(EIAyearSave, eia_year, sep = "/")
+
+# if saving formatted tables as CSV set outputCSV <- TRUE; otherwise
+# outputCSV <- FALSE
+outputCSV <- TRUE
+
+# path to save formatted tables in CSV form (set
+#
+# path_outputCSV <- NA, if outputCSV <- FALSE)
+path_outputCSV <- path_EIAInputData
+
+# execute import_EIAData for every time except the first time
+inputData.list <-
+  import_EIAData(path_InputData_Metafile,
+    path_EIAInputData,
+    outputCSV,
+    path_outputCSV,
+    # TRUE if prepping data for EIAplantAssociation and/or
+    # condenserDuty packages
+    prepCondenserDuty = TRUE,
+    # only required if prepCondenserDuty = TRUE
+    eia_year = 2020
+  )
+```
+
+If the crosswalk is complete, the `import_EIAData()` function will
+return a list object that will contain all tables found in the
+`scriptTableName` column of the crosswalk, and all column names found
+in `InputColumnNames` will have been changed to `scriptColnames`. If
+values appear in the `scriptImportFunc` column, those functions will
+have been run on the data to further format it for analysis.
+
+If the crosswalk contains references to data that cannot be found in
+`path_EIAInputData`, the `import_EIAData()` function will return the
+following:
+
+```
+> inputData.list<-import_EIAData(path_InputData_Metafile,path_EIAInputData,outputCSV,path_outputCSV)
+[1] "Please review the Input Data Metafile for highlighted errors."
+```
+
+In this case, the `import_EIAData()` function has modified the
+crosswalk to highlight data that it was unable to find in
+`path_EIAInputData` and saved the resulting file to the location
+specified by `path_InputData_Metafile`. The `import_EIAData()`
+function works from left to right attempting to match what is in the
+crosswalk to what is in the `path_EIAInputData` directory. With each
+run of `import_EIAData()` the user should open and resolve all
+highlighted values. For example, if running 2020 in preparation for
+the EIAplantAssociation and/or condenserDuty packages, and the
+`scriptTableName` is `bogen`, and the value in the `InputFile` column
+is `6_1_EnviroAssoc_Y2015.xlsx`, it will be highlighted because it
+cannot be found in the 2020 data. The user should look at the
+`InputSheetDescription` and attempt to locate the data within the
+`path_EIAInputData` directory where the 2020 data is stored. In the
+case of 2020, the `InputFile` value should be changed to
+`6_1_EnviroAssoc_Y2020.xlsx` for the `scriptTableName` `bogen`, but
+for the year 2008, the `InputFile` would be `F860_SCHEDULE6_Y08.xls`.
+All `InputFile` values should be present in the `path_EIAInputData`
+directory.
+
+The user should repeat the steps: (1) run `import_EIAData()` and (2)
+resolve highlighted values in the crosswalk, until a list object is
+returned by the function. The list object will contain all tables
+found in the `scriptTableName` column of the crosswalk, and all column
+names found in `InputColumnNames` will have been changed to
+`scriptColnames`. If values appear in the `scriptImportFunc` column,
+those functions will have been run on the data to further format it
+for analysis.
+
+It is recommended that the user save the completed crosswalk for
+future use. Each time the user needs to access the formatted data,
+the `import_EIAData()` function can be used with the existing
+completed crosswalk, and since the crosswalk is complete no
+highlighted values will need to be resolved. The user can also use
+the `*.csv` files saved if `outputCSV = TRUE`.
+
+### Section 2.4.3: Run `import_EIAData()` for Use Outside of the EIAplantAssociation and condenserDuty Packages
+The `import_EIAData()` function is flexible enough to format data
+according to the user's needs. When creating a crosswalk for use
+outside of the EIAplantAssociation and condenserDuty packages, it
+is important to remember the following requirements:
+
+1. The file *must* be in .xlsx format;
+2. All the columns listed as a `Required Column` in Table 1 *must* be
+   present;
+3. All `scriptImportFunc` values *must* be names of functions
+   available in the user's R environment.
+
+When building a custom crosswalk, it is important to remember the
+function of each column in the crosswalk. Refer to the documentation
+for the `crosswalk2015` data object using the following:
+
+```{r, eval=FALSE,echo=TRUE}
+?importThermoEIA::crosswalk2015
+```
+
+Remember, all columns of a given table will be imported, but only
+those listed in `InputColumnName` will have there headers replaced
+with values in `scriptColnames`.
+
+The process to build a custom crosswalk is the same as the process
+detailed in [Section
+2.4.2](#section-2.4.2-run-import_eiadata-using-an-existing-saved-crosswalk)
+with the exception of the `prepCondenserDuty` and `eia_year`
+arguments. If the data is to be formatted for use outside of the
+EIAplantAssociation and/or condenserDuty packages, `prepCondenserDuty`
+should be set to `FALSE`. The `eia_year` argument will be ignored if
+`prepCondenserDuty` is `FALSE`.
+
+# Section 3: Resources for EIA Data Identification
+Below is a table of helpful resources when analyzing EIA
+thermoelectric plant data. The answer to most questions about the EIA
+data used by the EIAplantAssociation and condenserDuty packages is
+found in this table:
+
+```{r eval=TRUE,echo=FALSE}
+table4 <- structure(list(URL = c(
+  "[Guide to EIA Electric Power](https://www.eia.gov/electricity/data/guide/pdf/guide.pdf)",
+  "[EIA Technical Notes](https://www.eia.gov/electricity/annual/pdf/tech_notes.pdf)",
+  "[EIA Survey](https://www.eia.gov/Survey/)",
+  "[EIA Glossary](https://www.eia.gov/tools/glossary/)",
+  "[Form EIA-860 Data](https://www.eia.gov/electricity/data/eia860/)",
+  NA, "[OMB Report Form EIA-860](https://omb.report/icr/202211-1905-001/doc/126698100)",
+  "[Form EIA-860 Instructions](https://omb.report/icr/202112-1905-001/doc/117324201)",
+  "[Form EIA-923 Data](https://www.eia.gov/electricity/data/eia923/)",
+  "[EIA Form-923 Reporting Form](https://www.eia.gov/survey/form/eia_923/form.pdf)",
+  "[Form EIA-923 Instructions](https://www.eia.gov/survey/form/eia_923/instructions.pdf)",
+  "[Form EIA-923 8D Instructions](https://www.eia.gov/survey/form/eia_923/instructions_schedule8d.pdf)",
+  "[Form EIA-767 Instructions](https://www.eia.gov/survey/form/eia_767/instructions_form.pdf)",
+  "[Form EIA-906 Instructions](https://www.eia.gov/survey/form/eia_906/instructions_form.pdf)",
+  "[Form EIA-920 Instructions](https://www.eia.gov/survey/form/eia_920/instructions_form.pdf)",
+  "[EIA Thermoelectric cooling water data](https://www.eia.gov/electricity/data/water/)",
+  "[EIA-EPA Data Crosswalk](https://www.epa.gov/airmarkets/power-sector-data-crosswalk)",
+  "[Boiler Generator Associations](https://catalyst.coop/2018/08/07/boiler-generator-associations/)",
+  "[Synapse Interactive Map of Power Plants](https://www.synapse-energy.com/tools/interactive-map-us-power-plants)",
+  "[ArcGIS Interactive Map of Power Plants](https://www.arcgis.com/apps/dashboards/201fc98c0d74482d8b3acb0c4cc47f16)"
+), `EIA Form` = c(
+  "all", "all", NA, NA, "860", "860", "860", "860",
+  "923", "923", "923", "923", "767", "906", "920", NA, "all", NA,
+  NA, NA
+), File = c(
+  NA, NA, NA, NA, NA, "LayoutY2015.xlsx", NA,
+  NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
+), Description = c(
+  "2018 high-level discussion of 860, 923, and other forms",
+  "2022 technical notes on 860, 923, and other forms",
+  "Lists all EIA forms including discontinued forms",
+  "Glossary of technical terms and agency terminology",
+  "Current and past data download, plus high-level overview; The 860 is a year-end status report on installed equipment at power plants",
+  "Brief description of each data element in the 2015 EIA 860; tables provide meaning of short alphabetic codes",
+  "Online reporting form; 2022 revision",
+  "Reporting instructions",
+  "Download site for 923 data",
+  "923 form",
+  "Instructions for 2023 EIA form 923",
+  "Instructions for section 8D, cooling water use, with happy cartoons",
+  "Instructions for 767 form in 2005, precursor of 860 and 923 form",
+  "Instructions for 906 form in 2007, precursor of 923 form",
+  "2004/2005 form 920 instructions, precursor of 923 form",
+  "2014-2020 Summary of water use, not the same as section 8D of 923 form; includes gross generation.",
+  "EPA-EIA power sector data crosswalk, October 2022",
+  "Non-EIA analysis of boiler-generator associations, cite as Gosnell 2018",
+  "Nice interactive map of power plants by capacity and type",
+  "Nice interactive map of power plants by capacity and type"
+)), row.names = c(
+  NA,
+  20L
+), class = "data.frame")
+
+table4$`EIA Form` <- ifelse(is.na(table4$`EIA Form`), "", table4$`EIA Form`)
+table4$File <- ifelse(is.na(table4$File), "", table4$File)
+table4$URL <- ifelse(is.na(table4$URL), "", table4$URL)
+
+knitr::kable(
+  table4,
+  caption = paste0(
+    "Table 4: Helpful Resources for Analysis of EIA Thermoelectric ",
+    "Plant Data"
+  )
+)
+```
+
+## Acknowledgements

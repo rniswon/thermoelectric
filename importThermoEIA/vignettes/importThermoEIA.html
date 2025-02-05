@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Lillian Gorman Sanisaca, Andrew Halper" />
+
+<meta name="date" content="2023-01-19" />
+
+<title>importThermoEIA</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">importThermoEIA</h1>
+<h4 class="author">Lillian Gorman Sanisaca, Andrew Halper</h4>
+<h4 class="date">2023-01-19</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#section-1-the-importthermoeia-package" id="toc-section-1-the-importthermoeia-package">Section 1: The
+importThermoEIA package</a>
+<ul>
+<li><a href="#section-1.1-required-software-and-dependencies" id="toc-section-1.1-required-software-and-dependencies">Section 1.1:
+Required Software and Dependencies</a></li>
+<li><a href="#section-1.2-how-to-load-the-importthermoeia-package" id="toc-section-1.2-how-to-load-the-importthermoeia-package">Section
+1.2: How to Load the importThermoEIA Package</a></li>
+</ul></li>
+<li><a href="#section-2-using-the-importthermoeia-package" id="toc-section-2-using-the-importthermoeia-package">Section 2: Using
+the importThermoEIA Package</a>
+<ul>
+<li><a href="#section-2.1-pull-eia-data-from-the-web-using-eia_webpull" id="toc-section-2.1-pull-eia-data-from-the-web-using-eia_webpull">Section
+2.1: Pull EIA Data From the Web Using
+<code>eia_webpull()</code></a></li>
+<li><a href="#section-2.2-developing-an-eia-code-crosswalk-to-assign-consistent-names-to-eia-data" id="toc-section-2.2-developing-an-eia-code-crosswalk-to-assign-consistent-names-to-eia-data">Section
+2.2: Developing an EIA-code Crosswalk to Assign Consistent Names to EIA
+Data</a></li>
+<li><a href="#section-2.3-the-crosswalk2015-data-object" id="toc-section-2.3-the-crosswalk2015-data-object">Section 2.3: The
+<code>crosswalk2015</code> Data Object</a></li>
+<li><a href="#section-2.4-using-the-import_eiadata-function-to-build-a-crosswalk-and-format-data" id="toc-section-2.4-using-the-import_eiadata-function-to-build-a-crosswalk-and-format-data">Section
+2.4: Using the <code>import_EIAData()</code> Function to Build a
+Crosswalk and Format Data</a>
+<ul>
+<li><a href="#section-2.4.1-run-import_eiadata-using-the-crosswalk2015-data-object" id="toc-section-2.4.1-run-import_eiadata-using-the-crosswalk2015-data-object">Section
+2.4.1: Run <code>import_EIAData()</code> Using the
+<code>crosswalk2015</code> Data Object</a></li>
+<li><a href="#section-2.4.2-run-import_eiadata-using-an-existing-saved-crosswalk" id="toc-section-2.4.2-run-import_eiadata-using-an-existing-saved-crosswalk">Section
+2.4.2: Run <code>import_EIAData()</code> Using an Existing Saved
+Crosswalk</a></li>
+<li><a href="#section-2.4.3-run-import_eiadata-for-use-outside-of-the-eiaplantassociation-and-condenserduty-packages" id="toc-section-2.4.3-run-import_eiadata-for-use-outside-of-the-eiaplantassociation-and-condenserduty-packages">Section
+2.4.3: Run <code>import_EIAData()</code> for Use Outside of the
+EIAplantAssociation and condenserDuty Packages</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#section-3-resources-for-eia-data-identification" id="toc-section-3-resources-for-eia-data-identification">Section 3:
+Resources for EIA Data Identification</a>
+<ul>
+<li><a href="#acknowledgements" id="toc-acknowledgements">Acknowledgements</a></li>
+</ul></li>
+</ul>
+</div>
+
+<div id="section-1-the-importthermoeia-package" class="section level1">
+<h1>Section 1: The importThermoEIA package</h1>
+<p>The importThermoEIA package pulls data on thermoelectric plants,
+including forms 923, 860, 767, 906/920, and 759 from the <a href="https://www.eia.gov/electricity/">EIA web site</a>; and formats
+the data in a standard format, including consistent table and column
+names, regardless of the year in which the data was reported. This
+package addresses one of the main challenges of working with EIA data
+through time, which is the variability in naming conventions of file,
+sheet, and column names in the EIA forms. The importThermoEIA package
+includes tools to assist the user in developing crosswalks between the
+names used by the EIA and the scripts that use the data. The primary use
+of the importThermoEIA package is to format EIA data to be used by the
+EIAplantAssociation and condenserDuty packages. However, functions in
+importThermoEIA are general enough to be used to format EIA data for use
+in other custom scripts designed by the user.</p>
+<div id="section-1.1-required-software-and-dependencies" class="section level2">
+<h2>Section 1.1: Required Software and Dependencies</h2>
+<p>The importThermoEIA package must be run on an R version equal to or
+later than <a href="https://cran.microsoft.com/snapshot/2021-01-17/bin/windows/base/old/4.0.0">4.0</a>.
+Download the latest version of <a href="https://cran.r-project.org/bin/windows/base/">R for Windows</a>.
+An installation of Rtools (either <a href="https://github.com/r-windows/rtools-installer/releases/download/2022-02-06/rtools40-x86_64.exe">rtools40</a>
+for R version 4.0.x through 4.1.x or <a href="https://cran.microsoft.com/bin/windows/Rtools/rtools42/rtools.html">Rtools42
+for Windows</a> for R version 4.2.x is required to install dependency
+packages. Microsoft Excel is also required. The following dependency R
+packages listed in the <a href="https://github.com/rniswon/Thermoelectric/blob/master/importThermoEIA/DESCRIPTION"><code>DESCRIPTION</code></a>
+file will be installed when importThermoEIA is installed:</p>
+<ol style="list-style-type: decimal">
+<li><a href="https://cran.r-project.org/web/packages/dplyr/index.html">dplyr</a></li>
+<li><a href="https://cran.r-project.org/web/packages/foreign/index.html">foreign</a></li>
+<li><a href="https://cran.r-project.org/web/packages/knitr/index.html">knitr</a></li>
+<li><a href="https://cran.r-project.org/web/packages/magrittr/index.html">magrittr</a></li>
+<li><a href="https://cran.r-project.org/web/packages/openxlsx/">openxlsx</a></li>
+<li><a href="https://cran.r-project.org/web/packages/readxl/index.html">readxl</a></li>
+<li><a href="https://cran.r-project.org/web/packages/rmarkdown/index.html">rmarkdown</a></li>
+<li><a href="https://cran.r-project.org/web/packages/testthat/index.html">testthat</a></li>
+</ol>
+</div>
+<div id="section-1.2-how-to-load-the-importthermoeia-package" class="section level2">
+<h2>Section 1.2: How to Load the importThermoEIA Package</h2>
+<p>To load the importThermoEIA package the user must use a method that
+installs R packages from <a href="https://github.com/">GitHub</a> like
+<code>remotes::install_github()</code>. The remotes package must be
+installed first, then the importThermoEIA package using the code below.
+Note that the <code>subdir</code> argument is necessary to load this
+package using <code>remotes::install_github()</code>. This is a one-time
+process for each version of R, or version of the importThermoEIA
+package. After the importThermoEIA package is installed, you can use it
+like any other R package with <code>library(importThermoEIA)</code>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install the remotes package (one-time process)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;remotes&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># install the importThermoEIA package (one-time process)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">repo =</span> <span class="st">&quot;https://github.com/rniswon/Thermoelectric&quot;</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">subdir =</span> <span class="st">&quot;importThermoEIA&quot;</span>, <span class="at">build_vignettes =</span> T, <span class="at">upgrade =</span> <span class="st">&quot;never&quot;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># load the importThermoEIA package (necessary each time the package is</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># used in a given R session)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(importThermoEIA)</span></code></pre></div>
+<p>When the importThermoEIA package is installed, all dependency
+packages from <a href="#section-1.1-required-software-and-dependencies">Section 1.1</a>
+will be installed and the process will take a few minutes, but once the
+package is installed all dependencies will load with
+<code>library(importThermoEIA)</code>.</p>
+</div>
+</div>
+<div id="section-2-using-the-importthermoeia-package" class="section level1">
+<h1>Section 2: Using the importThermoEIA Package</h1>
+<p>The importThermoEIA package is designed to be used on EIA data from
+2000 forward, however, only data from 2008 forward can be used in the
+<code>EIAplantAssociation</code> and condenserDuty packages. For each
+year, the following EIA forms are imported. All files associated with
+each form will be imported into a single directory labeled with the year
+in which the data was reported and will be accessible to the user
+outside of the R environment.</p>
+<ol style="list-style-type: decimal">
+<li>2000-forward: <a href="https://www.eia.gov/electricity/data/eia860/">Form-860</a></li>
+<li>2008-forward: <a href="https://www.eia.gov/electricity/data/eia923">Form-923</a></li>
+<li>2001-2007: <a href="https://www.eia.gov/electricity/data/eia923">Form-906/920</a></li>
+<li>2000-2005: <a href="https://www.eia.gov/electricity/data/eia767">Form-767</a></li>
+<li>2000: <a href="https://www.eia.gov/electricity/data/eia923">Form-759</a></li>
+</ol>
+<div id="section-2.1-pull-eia-data-from-the-web-using-eia_webpull" class="section level2">
+<h2>Section 2.1: Pull EIA Data From the Web Using
+<code>eia_webpull()</code></h2>
+<p>The first step in developing EIA tables for use in R is to pull the
+data directly from the <a href="https://www.eia.gov/electricity/">EIA
+web site</a>. The <code>eia_webpull()</code> function is used as
+follows:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># directory where raw EIA pulled from the web will be saved</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>EIAsaveOut <span class="ot">&lt;-</span> <span class="st">&quot;D:/&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># specify which year&#39;s data to pull (subdirectory within EIAsaveOut</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># will be labeled with the eia_year)y</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>eia_year <span class="ot">&lt;-</span> <span class="dv">2020</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># pull and save EIA data from the web</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">eia_webpull</span>(eia_year, EIAyearSave)</span></code></pre></div>
+</div>
+<div id="section-2.2-developing-an-eia-code-crosswalk-to-assign-consistent-names-to-eia-data" class="section level2">
+<h2>Section 2.2: Developing an EIA-code Crosswalk to Assign Consistent
+Names to EIA Data</h2>
+<p>One of the biggest challenges to working with EIA data is the lack of
+consistency in file, sheet, and column naming conventions through time.
+While much of the data content remains the same, the file, sheet, and
+column names vary widely. The importThermoEIA package employs a
+crosswalk method to conform names of tables and columns of EIA data so
+that the same R scripts can be used to analyze data from 2000 forward
+without customizing the analysis scripts for each year. A crosswalk is a
+table that assigns a <code>scriptTableName</code> and
+<code>scriptColname</code> to a given column of EIA data
+(<code>InputColumnName</code>) in a given EIA sheet
+(<code>InputSheetName</code>) for Microsoft Excel files in a given EIA
+file (<code>InputFile</code>) in a row-wise manner.</p>
+</div>
+<div id="section-2.3-the-crosswalk2015-data-object" class="section level2">
+<h2>Section 2.3: The <code>crosswalk2015</code> Data Object</h2>
+<p>An example crosswalk is included in the importThermoEIA package
+called crosswalk2015. This example crosswalk was build for the year 2015
+and contains all required data for the EIAplantAssociation and
+condenserDuty packages. The <code>crosswalk2015</code> data frame can be
+accessed using the standard R data loading procedure shown below.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load the example crosswalk (will be called &#39;crosswalk2015&#39; in the R</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># environment)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># the importThermoEIA package must be available to load the data</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># use library(importThermoEIA) to make the importThermoEIA package</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># available in the R environment</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;crosswalk2015&quot;</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># save example crosswalk externally</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># path to output example crosswalk as .xlsx file for external viewing</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>outCrossPath <span class="ot">&lt;-</span> <span class="st">&quot;./crosswalk2015.xlsx&quot;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>openxlsx<span class="sc">::</span><span class="fu">write.xlsx</span>(crosswalk2015, <span class="at">file =</span> outCrossPath, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<p>The <code>crosswalk2015</code> data object is a data frame with 210
+rows and 8 columns. The column descriptions are given in the table
+below. Columns flagged with <code>TRUE</code> in the
+<code>Required Column</code> <em>must</em> be present in a crosswalk to
+run importThermoEIA functions.</p>
+<table>
+<caption>Table 1: Column Descriptions for crosswalk2015 data
+object.</caption>
+<colgroup>
+<col width="11%" />
+<col width="62%" />
+<col width="26%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Column Name</th>
+<th align="left">Column Description</th>
+<th align="left">Required Column</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>InputFile</code></td>
+<td align="left">A character vector of EIA file names for the year
+2015</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left"><code>InputSheetName</code></td>
+<td align="left">A character vector of Excel sheet names for the year
+2015</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>InputSheetDescription</code></td>
+<td align="left">A character vector of EIA data descriptions of a given
+Excel sheet for the year 2015</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left"><code>InputColumnName</code></td>
+<td align="left">A character vector of EIA column names for the year
+2015</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>InputColumnDescription</code></td>
+<td align="left">A character vector of EIA data descriptions of a given
+column for the year 2015</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left"><code>scriptImportFunc</code></td>
+<td align="left">A character vector of required import functions to be
+used if preparing data for the plant_association and/or condenserDuty
+packages</td>
+<td align="left">TRUE (column must be present, but content can be
+blank)</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>scriptTableName</code></td>
+<td align="left">A character vector of required tables to be used if
+preparing data for the plant_association and/or condenserDuty
+packages</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left"><code>scriptColnames</code></td>
+<td align="left">A character vector of required column names to be used
+if preparing data for the plant_association and/or condenserDuty
+packages</td>
+<td align="left">TRUE</td>
+</tr>
+</tbody>
+</table>
+<p>At first glance this table seems daunting, but there are built-in
+tools to aid the user in developing a custom crosswalk.</p>
+<p>If developing a crosswalk for use in the EIAplantAssociation and
+condenserDuty packages, all values from the <code>scriptTableName</code>
+and <code>scriptColnames</code> found in the <code>crosswalk2015</code>
+data object <em>must</em> be present with the exception of the values
+shown below which are not critical to the
+<code>EIAplantAssociation</code> or condenserDuty packages. These
+exceptions are not always present in years prior to 2015, but it is
+important to note that <em>if</em> the data are available, these
+exception rows should be included in the crosswalk. The
+<code>FirstYearRequired</code> column indicates the earliest year in
+which a column is required, if <code>NA</code> the column is never
+required.</p>
+<table>
+<caption>Table 2: Rows in the crosswalk2015 object <em>not</em> required
+for all years to import data for use in the EIAplantAssocation and/or
+condenserDuty packages</caption>
+<thead>
+<tr class="header">
+<th align="left">scriptTableName</th>
+<th align="left">scriptColnames</th>
+<th align="left">FirstYearFound</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>bogen</code></td>
+<td align="left"><code>Plant.Name</code></td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left"><code>bocoo</code></td>
+<td align="left"><code>Plant.Name</code></td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>gen_860</code></td>
+<td align="left"><code>Technology</code></td>
+<td align="left">2014</td>
+</tr>
+<tr class="even">
+<td align="left"><code>boilerDesignData</code></td>
+<td align="left"><code>Plant.Name</code></td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>cooling</code></td>
+<td align="left"><code>Plant.Name</code></td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left"><code>cooling</code></td>
+<td align="left"><code>Water.Source.Code</code></td>
+<td align="left">2011</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>cooling</code></td>
+<td align="left"><code>Water.Type.Code</code></td>
+<td align="left">2011</td>
+</tr>
+<tr class="even">
+<td align="left"><code>cooling8D</code></td>
+<td align="left"><code>Month</code></td>
+<td align="left">2010</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>cooling8D</code></td>
+<td align="left"><code>Withdrawal_MG</code></td>
+<td align="left">2012</td>
+</tr>
+<tr class="even">
+<td align="left"><code>cooling8D</code></td>
+<td align="left"><code>Discharge_MG</code></td>
+<td align="left">2012</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>cooling8D</code></td>
+<td align="left"><code>Consumptive_MG</code></td>
+<td align="left">2012</td>
+</tr>
+<tr class="even">
+<td align="left"><code>cooling8D</code></td>
+<td align="left"><code>Service_hrs</code></td>
+<td align="left">2010</td>
+</tr>
+</tbody>
+</table>
+<p>If <code>prepCondenserDuty = TRUE</code> the
+<code>import_EIAData()</code> function will verify whether all required
+data for the EIAplantAssociation and condenserDuty packages is present.
+If there are missing <code>scriptTableNames</code>,
+<code>scriptColnames</code>, or <code>scriptImportFunc</code> required
+for the EIAplantAssociation and condenserDuty packages, the user will
+see this display in the console:</p>
+<p><span style="color: red; font-family: monospace;">The following
+required tables/columns are NOT present</span></p>
+<pre><code>                                                   InputSheetDescription       InputColumnDescription
+1 Form EIA-860 Data - Schedule 3, &#39;Generator Data&#39; (Operable Units Only)                         &lt;NA&gt;
+2                 Form EIA-860 Data - Schedule 6D, &#39;Cooling System Data&#39; Type of cooling water source
+3                 Form EIA-860 Data - Schedule 6D, &#39;Cooling System Data&#39;        Type of cooling water
+4                            Form EIA-923, Power Plant Operations Report                         &lt;NA&gt;
+5                            Form EIA-923, Power Plant Operations Report                         &lt;NA&gt;
+6                            Form EIA-923, Power Plant Operations Report                         &lt;NA&gt;
+7                            Form EIA-923, Power Plant Operations Report                         &lt;NA&gt;
+8                            Form EIA-923, Power Plant Operations Report                         &lt;NA&gt;
+       scriptImportFunc scriptTableName    scriptColnames
+1 import_generator_data         gen_860        Technology
+2     import_coolingSys         cooling Water.Source.Code
+3     import_coolingSys         cooling   Water.Type.Code
+4             import_8D       cooling8D             Month
+5             import_8D       cooling8D     Withdrawal_MG
+6             import_8D       cooling8D      Discharge_MG
+7             import_8D       cooling8D    Consumptive_MG
+8             import_8D       cooling8D       Service_hrs</code></pre>
+<p><span style="color: red; font-family: monospace;">EIAplantAssociation
+and/or consenserDuty analysis CANNOT be completed</span></p>
+<p>The user must then edit the crosswalk to include the missing values
+and run <code>import_EIAData()</code> again.</p>
+</div>
+<div id="section-2.4-using-the-import_eiadata-function-to-build-a-crosswalk-and-format-data" class="section level2">
+<h2>Section 2.4: Using the <code>import_EIAData()</code> Function to
+Build a Crosswalk and Format Data</h2>
+<p>The <code>import_EIAData()</code> function is used to both build a
+crosswalk and format the data once the crosswalk is complete. There are
+two possible paths to begin the crosswalk building process: (1) begin
+with the <code>crosswalk2015</code> data object, and (2) begin with a
+crosswalk file developed by the user in .xlsx format. Below are the
+arguments of the <code>import_EIAData()</code> function.</p>
+<table>
+<caption>Table 3: import_EIAData() function argument
+descriptions</caption>
+<colgroup>
+<col width="8%" />
+<col width="91%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Function Argument</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>path_InputData_Metafile</code></td>
+<td align="left">Character string indicating path to crosswalk file must
+be in .xlsx format. If <code>useStandardCrosswalk == TRUE</code> then
+this is the path to which the crosswalk will be saved for further edit
+by the user.</td>
+</tr>
+<tr class="even">
+<td align="left"><code>path_EIAInputData</code></td>
+<td align="left">Character string indicating directory in which EIA data
+files have been extracted from ZIP files. If using the
+<code>eia_webpull()</code> function, the directory will be specified by
+the <code>eia_year</code>.</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>outputCSV</code></td>
+<td align="left"><code>TRUE</code>/<code>FALSE</code> indicating whether
+or not to save formatted data as individual CSV files</td>
+</tr>
+<tr class="even">
+<td align="left"><code>path_outputCSV</code></td>
+<td align="left">Path to directory in which to save the formatted EIA
+data as CSV files.</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>useStandardCrosswalk</code></td>
+<td align="left"><code>TRUE</code>/<code>FALSE</code> indicating whether
+the <code>data(&quot;crosswalk2015&quot;)</code> file should be used to start the
+crosswalk development process. After the first run the resulting
+crosswalk will be saved as <code>path_InputData_Metafile</code>.
+Subsequent runs of <code>import_EIAData</code> should have
+<code>useStandardCrosswalk</code> as <code>FALSE</code>.</td>
+</tr>
+<tr class="even">
+<td align="left"><code>prepCondenserDuty</code></td>
+<td align="left"><code>TRUE</code>/<code>FALSE</code> indicating whether
+checks should be made for data required to execute the
+<code>EIAplantAssocation</code> and/or condenserDuty packages</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>eia_year</code></td>
+<td align="left">A numeric value indicating the year of EIA data being
+formatted. <em>Only</em> required if <code>prepCondenserDuty</code> is
+<code>TRUE</code>.</td>
+</tr>
+</tbody>
+</table>
+<div id="section-2.4.1-run-import_eiadata-using-the-crosswalk2015-data-object" class="section level3">
+<h3>Section 2.4.1: Run <code>import_EIAData()</code> Using the
+<code>crosswalk2015</code> Data Object</h3>
+<p>To run <code>import_EIAData()</code> using the
+<code>crosswalk2015</code> object, set the
+<code>useStandardCrosswalk</code> argument to <code>TRUE</code> and
+specify the <code>path_InputData_Metafile</code> as the file to which
+the crosswalk will be saved for manual edits by the user.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># run the import_EIAData() function for the first time using the</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># crosswalk2015 object</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># path to crosswalk being used to start</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>path_InputData_Metafile <span class="ot">&lt;-</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(repoPath, <span class="st">&quot;./newCrosswalk2020.xlsx&quot;</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># path to EIA raw data</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># path should be to directory with extracted data from ZIP files</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># (created by eia_webpull)</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>path_EIAInputData <span class="ot">&lt;-</span> <span class="fu">paste</span>(EIAyearSave, eia_year, <span class="at">sep =</span> <span class="st">&quot;/&quot;</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># if saving formatted tables as csv set outputCSV &lt;- TRUE; otherwise</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co"># outputCSV &lt;- FALSE</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>outputCSV <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co"># path to save formatted tables in CSV form (set</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># path_outputCSV &lt;- NA, if outputCSV &lt;- FALSE)</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>path_outputCSV <span class="ot">&lt;-</span> path_EIAInputData</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"># execute import_EIAData for the first time</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>inputData.list <span class="ot">&lt;-</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">import_EIAData</span>(path_InputData_Metafile,</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    path_EIAInputData,</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    outputCSV,</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    path_outputCSV,</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># this should only be used on the first run of the import_EIAData function</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">useStandardCrosswalk =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># TRUE if prepping data for EIAplantAssociation and/or condenserDuty</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># packages</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">prepCondenserDuty =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># only required if prepCondenserDuty = TRUE</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">eia_year =</span> <span class="dv">2020</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p>If running the year 2015, no edits to the <code>crosswalk2015</code>
+will be required and the <code>import_EIAData()</code> function will
+return a list object with all tables from <code>scriptTableName</code>
+included. It is important to mention that all columns of any given
+<code>InputSheetName</code> will be accessible, but <em>only</em>
+columns listed in <code>InputColumnName</code> will be standardized and
+replaced by values in <code>scriptColnames</code>. When run on 2015
+data, using the <code>crosswalk2015</code> data object as the crosswalk,
+the <code>import_EIAData()</code> function will output the following in
+the console:</p>
+<pre><code>&gt; inputData.list&lt;-import_EIAData(path_InputData_Metafile,path_EIAInputData,outputCSV,path_outputCSV)
+[1] &quot;bogen&quot;
+Test passed
+[1] &quot;bocoo&quot;
+Test passed
+[1] &quot;gen_860&quot;
+Test passed
+[1] &quot;retiredGenerators&quot;
+[1] &quot;generation.data&quot;
+Test passed
+[1] &quot;boilerFuelData&quot;
+Test passed
+[1] &quot;gen_fuel_data&quot;
+Test passed
+[1] &quot;boilerDesignData&quot;
+Test passed
+[1] &quot;cooling&quot;
+Test passed
+[1] &quot;plantInfo&quot;
+Test passed
+[1] &quot;cooling8D&quot;
+Test passed</code></pre>
+<p>When developing a crosswalk for year different from 2015 using the
+<code>crosswalk2015</code> data object, you will likely see the
+following in the console:</p>
+<pre><code>&gt; inputData.list&lt;-import_EIAData(path_InputData_Metafile,path_EIAInputData,outputCSV,path_outputCSV)
+[1] &quot;Please review the Input Data Metafile for highlighted errors.&quot;</code></pre>
+<p>In this case, the <code>import_EIAData()</code> function has modified
+the crosswalk to highlight data that it was unable to find in
+<code>path_EIAInputData</code>, and saved the resulting file to the
+location specified by <code>path_InputData_Metafile</code>. The
+<code>import_EIAData()</code> function works from left to right
+attempting to match what is in the crosswalk to what is in the
+<code>path_EIAInputData</code> directory. With each run of
+<code>import_EIAData()</code>, the user should open and resolve all
+highlighted values. For example, if running 2020 and the
+<code>InputFile</code> <code>6_1_EnviroAssoc_Y2015.xlsx</code> cannot be
+found, the user should look at the <code>InputSheetDescription</code>,
+and attempt to locate the data within the <code>path_EIAInputData</code>
+directory. In the case of 2020 the <code>InputFile</code> value should
+be changed to <code>6_1_EnviroAssoc_Y2020.xlsx</code>, but for the year
+2008 it would be <code>F860_SCHEDULE6_Y08.xls</code>. All
+<code>InputFile</code> values should be present in the
+<code>path_EIAInputData</code> directory.</p>
+<p>Once all highlighted values have been resolved, <em>save and
+close</em> the crosswalk file. Once the file is closed the user should
+run <code>import_EIAData()</code> again, with the
+<code>useStandardCrosswalk</code> argument set to <code>FALSE.</code> If
+the crosswalk file has not been closed the function will return an
+error. If the <code>useStandardCrosswalk</code> argument is not set to
+<code>FALSE</code>, the edits that the user made to the
+<code>path_InputData_Metafile</code> will be overwritten with the
+original <code>crosswalk2015</code> data object. Use the following to
+run all subsequent runs of the <code>import_EIAData()</code>
+function:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># execute import_EIAData for every time except the first time</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>inputData.list <span class="ot">&lt;-</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">import_EIAData</span>(path_InputData_Metafile,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    path_EIAInputData,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    outputCSV,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    path_outputCSV,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># on every run but the first useStandardCrosswalk=FALSE</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">useStandardCrosswalk =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># TRUE if prepping data for EIAplantAssociation and/or condenserDuty</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># packages</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">prepCondenserDuty =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># only required if prepCondenserDuty = TRUE</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">eia_year =</span> <span class="dv">2020</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p>The user should repeat the steps: (1) run
+<code>import_EIAData()</code>, and (2) resolve highlighted values in the
+crosswalk, until a list object is returned by the function. The list
+object will contain all tables found in the <code>scriptTableName</code>
+column of the crosswalk, and all column names found in
+<code>InputColumnNames</code> will have been changed to
+<code>scriptColnames</code>. If values appear in the
+<code>scriptImportFunc</code> column, those functions will have been run
+on the data to further format it for analysis.</p>
+<p>It is recommended that the user save the completed crosswalk for
+future use. Each time the user needs to access the formatted data, the
+<code>import_EIAData()</code> function can be used with the existing
+completed crosswalk, and since the crosswalk is complete no highlighted
+values will need to be resolved. The user can also use the
+<code>*.csv</code> files saved if <code>outputCSV = TRUE</code>.</p>
+</div>
+<div id="section-2.4.2-run-import_eiadata-using-an-existing-saved-crosswalk" class="section level3">
+<h3>Section 2.4.2: Run <code>import_EIAData()</code> Using an Existing
+Saved Crosswalk</h3>
+<p>When using a user developed, saved crosswalk, there are a few
+requirements:</p>
+<ol style="list-style-type: decimal">
+<li>The file <em>must</em> be in .xlsx format;</li>
+<li>All of the columns listed as a “Required Column” in Table 1
+<em>must</em> be present;</li>
+<li>All <code>scriptImportFunc</code> values <em>must</em> be names of
+functions available in the user’s R environment;</li>
+<li>If developing a crosswalk for use in the EIAplantAssociation and/or
+condenserDuty packages, all <code>scripTableName</code>,
+<code>scriptColnames</code>, and <code>scriptImportFunc</code> values
+found in the <code>crosswalk2015</code> data object <em>must</em> be
+present, with the exception of values found in Table 2.</li>
+</ol>
+<p>To run <code>import_EIAData()</code> on an existing crosswalk, use
+the code below:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># run the import_EIAData() function for the first time using the</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># crosswalk2015 object</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># path to crosswalk being used to start</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>path_InputData_Metafile <span class="ot">&lt;-</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(repoPath, <span class="st">&quot;./newCrosswalk2020.xlsx&quot;</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># path to EIA raw data</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># path should be to directory with extracted data from ZIP files</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># (created by eia_webpull)</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>path_EIAInputData <span class="ot">&lt;-</span> <span class="fu">paste</span>(EIAyearSave, eia_year, <span class="at">sep =</span> <span class="st">&quot;/&quot;</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co"># if saving formatted tables as CSV set outputCSV &lt;- TRUE; otherwise</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co"># outputCSV &lt;- FALSE</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>outputCSV <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co"># path to save formatted tables in CSV form (set</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="co"># path_outputCSV &lt;- NA, if outputCSV &lt;- FALSE)</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>path_outputCSV <span class="ot">&lt;-</span> path_EIAInputData</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="co"># execute import_EIAData for every time except the first time</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>inputData.list <span class="ot">&lt;-</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">import_EIAData</span>(path_InputData_Metafile,</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    path_EIAInputData,</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    outputCSV,</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    path_outputCSV,</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># TRUE if prepping data for EIAplantAssociation and/or</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># condenserDuty packages</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">prepCondenserDuty =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># only required if prepCondenserDuty = TRUE</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">eia_year =</span> <span class="dv">2020</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p>If the crosswalk is complete, the <code>import_EIAData()</code>
+function will return a list object that will contain all tables found in
+the <code>scriptTableName</code> column of the crosswalk, and all column
+names found in <code>InputColumnNames</code> will have been changed to
+<code>scriptColnames</code>. If values appear in the
+<code>scriptImportFunc</code> column, those functions will have been run
+on the data to further format it for analysis.</p>
+<p>If the crosswalk contains references to data that cannot be found in
+<code>path_EIAInputData</code>, the <code>import_EIAData()</code>
+function will return the following:</p>
+<pre><code>&gt; inputData.list&lt;-import_EIAData(path_InputData_Metafile,path_EIAInputData,outputCSV,path_outputCSV)
+[1] &quot;Please review the Input Data Metafile for highlighted errors.&quot;</code></pre>
+<p>In this case, the <code>import_EIAData()</code> function has modified
+the crosswalk to highlight data that it was unable to find in
+<code>path_EIAInputData</code> and saved the resulting file to the
+location specified by <code>path_InputData_Metafile</code>. The
+<code>import_EIAData()</code> function works from left to right
+attempting to match what is in the crosswalk to what is in the
+<code>path_EIAInputData</code> directory. With each run of
+<code>import_EIAData()</code> the user should open and resolve all
+highlighted values. For example, if running 2020 in preparation for the
+EIAplantAssociation and/or condenserDuty packages, and the
+<code>scriptTableName</code> is <code>bogen</code>, and the value in the
+<code>InputFile</code> column is
+<code>6_1_EnviroAssoc_Y2015.xlsx</code>, it will be highlighted because
+it cannot be found in the 2020 data. The user should look at the
+<code>InputSheetDescription</code> and attempt to locate the data within
+the <code>path_EIAInputData</code> directory where the 2020 data is
+stored. In the case of 2020, the <code>InputFile</code> value should be
+changed to <code>6_1_EnviroAssoc_Y2020.xlsx</code> for the
+<code>scriptTableName</code> <code>bogen</code>, but for the year 2008,
+the <code>InputFile</code> would be <code>F860_SCHEDULE6_Y08.xls</code>.
+All <code>InputFile</code> values should be present in the
+<code>path_EIAInputData</code> directory.</p>
+<p>The user should repeat the steps: (1) run
+<code>import_EIAData()</code> and (2) resolve highlighted values in the
+crosswalk, until a list object is returned by the function. The list
+object will contain all tables found in the <code>scriptTableName</code>
+column of the crosswalk, and all column names found in
+<code>InputColumnNames</code> will have been changed to
+<code>scriptColnames</code>. If values appear in the
+<code>scriptImportFunc</code> column, those functions will have been run
+on the data to further format it for analysis.</p>
+<p>It is recommended that the user save the completed crosswalk for
+future use. Each time the user needs to access the formatted data, the
+<code>import_EIAData()</code> function can be used with the existing
+completed crosswalk, and since the crosswalk is complete no highlighted
+values will need to be resolved. The user can also use the
+<code>*.csv</code> files saved if <code>outputCSV = TRUE</code>.</p>
+</div>
+<div id="section-2.4.3-run-import_eiadata-for-use-outside-of-the-eiaplantassociation-and-condenserduty-packages" class="section level3">
+<h3>Section 2.4.3: Run <code>import_EIAData()</code> for Use Outside of
+the EIAplantAssociation and condenserDuty Packages</h3>
+<p>The <code>import_EIAData()</code> function is flexible enough to
+format data according to the user’s needs. When creating a crosswalk for
+use outside of the EIAplantAssociation and condenserDuty packages, it is
+important to remember the following requirements:</p>
+<ol style="list-style-type: decimal">
+<li>The file <em>must</em> be in .xlsx format;</li>
+<li>All the columns listed as a <code>Required Column</code> in Table 1
+<em>must</em> be present;</li>
+<li>All <code>scriptImportFunc</code> values <em>must</em> be names of
+functions available in the user’s R environment.</li>
+</ol>
+<p>When building a custom crosswalk, it is important to remember the
+function of each column in the crosswalk. Refer to the documentation for
+the <code>crosswalk2015</code> data object using the following:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>?importThermoEIA<span class="sc">::</span>crosswalk2015</span></code></pre></div>
+<p>Remember, all columns of a given table will be imported, but only
+those listed in <code>InputColumnName</code> will have there headers
+replaced with values in <code>scriptColnames</code>.</p>
+<p>The process to build a custom crosswalk is the same as the process
+detailed in <a href="#section-2.4.2-run-import_eiadata-using-an-existing-saved-crosswalk">Section
+2.4.2</a> with the exception of the <code>prepCondenserDuty</code> and
+<code>eia_year</code> arguments. If the data is to be formatted for use
+outside of the EIAplantAssociation and/or condenserDuty packages,
+<code>prepCondenserDuty</code> should be set to <code>FALSE</code>. The
+<code>eia_year</code> argument will be ignored if
+<code>prepCondenserDuty</code> is <code>FALSE</code>.</p>
+</div>
+</div>
+</div>
+<div id="section-3-resources-for-eia-data-identification" class="section level1">
+<h1>Section 3: Resources for EIA Data Identification</h1>
+<p>Below is a table of helpful resources when analyzing EIA
+thermoelectric plant data. The answer to most questions about the EIA
+data used by the EIAplantAssociation and condenserDuty packages is found
+in this table:</p>
+<table>
+<caption>Table 4: Helpful Resources for Analysis of EIA Thermoelectric
+Plant Data</caption>
+<colgroup>
+<col width="20%" />
+<col width="4%" />
+<col width="8%" />
+<col width="66%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">URL</th>
+<th align="left">EIA Form</th>
+<th align="left">File</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><a href="https://www.eia.gov/electricity/data/guide/pdf/guide.pdf">Guide to
+EIA Electric Power</a></td>
+<td align="left">all</td>
+<td align="left"></td>
+<td align="left">2018 high-level discussion of 860, 923, and other
+forms</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="https://www.eia.gov/electricity/annual/pdf/tech_notes.pdf">EIA
+Technical Notes</a></td>
+<td align="left">all</td>
+<td align="left"></td>
+<td align="left">2022 technical notes on 860, 923, and other forms</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="https://www.eia.gov/Survey/">EIA
+Survey</a></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">Lists all EIA forms including discontinued forms</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="https://www.eia.gov/tools/glossary/">EIA
+Glossary</a></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">Glossary of technical terms and agency terminology</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="https://www.eia.gov/electricity/data/eia860/">Form EIA-860
+Data</a></td>
+<td align="left">860</td>
+<td align="left"></td>
+<td align="left">Current and past data download, plus high-level
+overview; The 860 is a year-end status report on installed equipment at
+power plants</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">860</td>
+<td align="left">LayoutY2015.xlsx</td>
+<td align="left">Brief description of each data element in the 2015 EIA
+860; tables provide meaning of short alphabetic codes</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="https://omb.report/icr/202211-1905-001/doc/126698100">OMB Report
+Form EIA-860</a></td>
+<td align="left">860</td>
+<td align="left"></td>
+<td align="left">Online reporting form; 2022 revision</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="https://omb.report/icr/202112-1905-001/doc/117324201">Form EIA-860
+Instructions</a></td>
+<td align="left">860</td>
+<td align="left"></td>
+<td align="left">Reporting instructions</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="https://www.eia.gov/electricity/data/eia923/">Form EIA-923
+Data</a></td>
+<td align="left">923</td>
+<td align="left"></td>
+<td align="left">Download site for 923 data</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="https://www.eia.gov/survey/form/eia_923/form.pdf">EIA Form-923
+Reporting Form</a></td>
+<td align="left">923</td>
+<td align="left"></td>
+<td align="left">923 form</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="https://www.eia.gov/survey/form/eia_923/instructions.pdf">Form
+EIA-923 Instructions</a></td>
+<td align="left">923</td>
+<td align="left"></td>
+<td align="left">Instructions for 2023 EIA form 923</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="https://www.eia.gov/survey/form/eia_923/instructions_schedule8d.pdf">Form
+EIA-923 8D Instructions</a></td>
+<td align="left">923</td>
+<td align="left"></td>
+<td align="left">Instructions for section 8D, cooling water use, with
+happy cartoons</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="https://www.eia.gov/survey/form/eia_767/instructions_form.pdf">Form
+EIA-767 Instructions</a></td>
+<td align="left">767</td>
+<td align="left"></td>
+<td align="left">Instructions for 767 form in 2005, precursor of 860 and
+923 form</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="https://www.eia.gov/survey/form/eia_906/instructions_form.pdf">Form
+EIA-906 Instructions</a></td>
+<td align="left">906</td>
+<td align="left"></td>
+<td align="left">Instructions for 906 form in 2007, precursor of 923
+form</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="https://www.eia.gov/survey/form/eia_920/instructions_form.pdf">Form
+EIA-920 Instructions</a></td>
+<td align="left">920</td>
+<td align="left"></td>
+<td align="left">2004/2005 form 920 instructions, precursor of 923
+form</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="https://www.eia.gov/electricity/data/water/">EIA Thermoelectric
+cooling water data</a></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">2014-2020 Summary of water use, not the same as section
+8D of 923 form; includes gross generation.</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="https://www.epa.gov/airmarkets/power-sector-data-crosswalk">EIA-EPA
+Data Crosswalk</a></td>
+<td align="left">all</td>
+<td align="left"></td>
+<td align="left">EPA-EIA power sector data crosswalk, October 2022</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="https://catalyst.coop/2018/08/07/boiler-generator-associations/">Boiler
+Generator Associations</a></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">Non-EIA analysis of boiler-generator associations, cite
+as Gosnell 2018</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="https://www.synapse-energy.com/tools/interactive-map-us-power-plants">Synapse
+Interactive Map of Power Plants</a></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">Nice interactive map of power plants by capacity and
+type</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="https://www.arcgis.com/apps/dashboards/201fc98c0d74482d8b3acb0c4cc47f16">ArcGIS
+Interactive Map of Power Plants</a></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">Nice interactive map of power plants by capacity and
+type</td>
+</tr>
+</tbody>
+</table>
+<div id="acknowledgements" class="section level2">
+<h2>Acknowledgements</h2>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

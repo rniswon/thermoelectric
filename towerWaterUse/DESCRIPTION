@@ -1,0 +1,19 @@
+Package: towerWaterUse
+Type: Package
+Title: Make a custom Title for your package
+Version: 1.0
+Date: 
+Author: Kenneth Skinner
+Maintainer: Kenneth Skinner <kskinner@usgs.gov>
+Description: The towerWaterUse package ...
+VignetteBuilder: knitr
+LazyData: true
+Depends:
+    R(>= 4.0),
+    rmarkdown,
+    testthat
+Imports:
+  magrittr
+Config/testthat/edition: 3
+URL: https://github.com/rniswon/Thermoelectric/
+RoxygenNote: 7.2.3

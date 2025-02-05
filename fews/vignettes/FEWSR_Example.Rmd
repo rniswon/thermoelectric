@@ -1,0 +1,56 @@
+---
+title: "FEWSR: examples"
+author: "Irucka Embry"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_document:
+    highlight: kate
+    theme: readable
+vignette: >
+  %\VignetteIndexEntry{FEWSR: examples}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+<br />
+<br />
+
+# Examples
+```{r eval = FALSE}
+# Example to check the input file format
+library("FEWSR")
+
+# Copy and paste the following code into the R console if you wish to see the input file format for the Lake plants.
+openXL(file.path(system.file("extdata", "FEWS_BIG_Lake_plants_input.xlsx", package = "FEWSR")))
+  # opens the workbook using the default spreadsheet application
+
+
+# Copy and paste the following code into the R console if you wish to see the input file format for the Pond plants.
+openXL(file.path(system.file("extdata", "FEWS_Pond_plants_input.xlsx", package = "FEWSR")))
+  # opens the workbook using the default spreadsheet application
+
+
+# Copy and paste the following code into the R console if you wish to see the input file format for the River plants.
+openXL(file.path(system.file("extdata", "FEWS_River_plants_input.xlsx", package = "FEWSR")))
+  # opens the workbook using the default spreadsheet application
+```
+
+<br />
+<br />
+
+```{r eval = FALSE}
+# Examples to show different use cases
+fewsr(file.path(system.file("extdata", "FEWS_River_plants_input.xlsx", package = "FEWSR")), type = "river", output = "both")
+# The sheet number is 1 (default) and the surface water is river
+
+
+fewsr(file.path(system.file("extdata", "FEWS_Pond_plants_input.xlsx", package = "FEWSR")), sheet = "FEWS pond only input", type = "pond", output = "xlsx")
+# The sheet name is "FEWS pond only input" and the surface water is pond
+
+
+fewsr(file.path(system.file("extdata", "FEWS_BIG_Lake_plants_input.xlsx", package = "FEWSR")), sheet = 1, type = "lake", output = "csv")
+# The sheet number is 1 and the surface water is lake
+```
+
+
+# References

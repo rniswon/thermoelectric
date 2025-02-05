@@ -1,0 +1,114 @@
+Package: condenserDuty
+Type: Package
+Title: Condenser Duty Model  
+Version: 1.0
+Date: 
+Author: Victor Roland and Lillian Gorman Sanisaca
+Maintainer: Lillian Gorman Sanisaca <lgormansanisaca@usgs.gov>
+Description: The condenser duty model calcuates the added heatload generated during power generation at thermoelectric power plants. In order to calculate and process the added heat load or condenser duty as it is referred to throughout this document, plant boiler-generator (BOGEN) and boiler generator cooling system (BOGENCOO) must be mapped. This process is complicated and limited by the accuracy of the input data. As a disclaimer, manual edits to input data and/or BOGEN and BOGENCOO output association keys may be required for accurate condenser duty calculations. This model automates this process but is limited in that manual adjustments to BOGEN and BOGENCOO assignments are required. 
+Roxygen: list(markdown=TRUE)
+VignetteBuilder: knitr
+Depends:
+    R(>= 3.5),
+    methods
+Imports:
+  here,
+  dplyr,
+  purrr,
+  qdapTools,
+  igraph,
+  sjmisc,
+  reshape2,
+  RColorBrewer,
+  ggmap,
+  ggplot2,
+  knitr,
+  testthat,
+  drake,
+  plyr,
+  openxlsx,
+  readxl,
+  foreign,
+  remotes,
+  data.table,
+  tidyr,
+  stringr,
+  lubridate,
+  Metrics,
+  hydroGOF, 
+  purrr
+Suggests:
+License: GPL (>= 2)
+URL: https://code.usgs.gov/vroland/thermoelectric-water-consumption-models
+Collate:
+  'analyzeFuelHeat.R'        
+  'analyzeNGCCCD.R'          
+  'analyzeNominalLosses.R'
+  'analyzeSteamCD.R'
+  'applyCoolTypes.R'
+  'applyCoolTypes_plant.R'
+  'assignBogen.R'            
+  'assignCooling.R'          
+  'assignDominance.R' 
+  'breakStr.R'
+  'calcAnnual.R'
+  'calFuelDominance.R'       
+  'calFuelHeat.R'            
+  'calNGCCCondenserDuty.R'   
+  'calNominalLoss.R'         
+  'calNukeCd.R'              
+  'calSTCondenserDuty.R'     
+  'calSteamHeat.R'
+  'combinePostProcessVars.R'
+  'compileCDintermediate.R'
+  'compileFEWSRoutput.R'
+  'EIAcomparePlots.R'
+  'eia_webpull.R'
+  'estEfficiency.R' 
+  'groupedDomFuel.R'
+  'mergeCD_ENV.R'            
+  'non_nuke_condenser_duty.R'
+  'NukeCDcal.R'              
+  'processExports.R'         
+  'processNetGeneration.R'   
+  'fewsr_prep.R'
+  'findComplexPlants.R'
+  'findComplexPlants2.R'
+  'processenvDesvars.R'           
+  'import_boiler_design_data.R'      
+  'import_boiler_fuel_data.R'        
+  'import_sheet1_gen_and_fuel_data.R'
+  'import_sheet4_gen_and_fuel_data.R'
+  'import_8D.R'
+  'import_EIAData.R'
+  'import_bocoo_data.R'
+  'import_bogen_data.R'
+  'import_coolingSys.R'
+  'import_generator_data.R'
+  'import_plantInfo.R'
+  'joinBogen.R'
+  'joinPage1.3.4.R'
+  'named.list.R'
+  'prepCoolType.R'
+  'process8D.R'
+  'processComplexCUWD.R'
+  'readFormatTowerFEWSRresults.R'
+  'removeLeadZero.R'
+  'removeMissing.R'
+  'replaceMultiples.R'
+  'splitPlant_id.R'
+  'thermalEfficiencyByBogen.R'
+  'unPackList.R'
+  'associate.R'               
+  'bocoo_associate.R'         
+  'bogen_assocv_v2.R'         
+  'full_join_track.R'
+  'check_dependencies.R'
+  'getHere.R'
+  'load_required_packages.R'
+  'runCondenserDuty.R'
+  'SciBase_webpull.R'
+  'SteamHeatanalysis.R'
+  'calHeatExports.R'
+  'getEnvVars.R'
+RoxygenNote: 7.1.0

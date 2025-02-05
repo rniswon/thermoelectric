@@ -1,0 +1,8 @@
+"V1","V2","V3","V4","V5","V6","V7","V8","V9","V10","V11","V12","V13"
+"Plant design conditions from EIA 860 report. User parameters (Min T,Min approach, and Max approach) specifies consitions used in model calculations","","","","","","","","","","","",""
+"Days in month","","","","","","","","","","","",""
+"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","design"
+"31","28","31","30","31","30","31","31","30","31","30","31","30"
+"Min T","Min approach","max approach","","","","","","","","","",""
+"4.44444","5","15","","","","","","","","","",""
+"Plant Characteristics","","","DC","","","","","","","","",""

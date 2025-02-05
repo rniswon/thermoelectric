@@ -1,0 +1,31 @@
+Package: FEWSR
+Title: FEWS Multiplant Model
+Version: 1.0.0
+Depends: R (>= 3.3.0), utils, tcltk (>= 2.7.0), data.table (>= 1.10.2)
+Imports: rio (>= 0.5.8), readxl (>= 1.0.0), openxlsx (>= 4.1.0),
+    grDevices, ggplot2 (>= 2.2.0), gWidgets2 (>= 1.0.7),
+    gWidgets2tcltk (>= 1.0-6), fastmatch, stringi, methods, assertthat,
+    fpCompare,lubridate
+Suggests: Rcpp (>= 0.11.6), knitr, rmarkdown
+Author: Timothy H. Diehl [aut, cre] (Microsoft Excel(R) spreadsheets),
+    Irucka Embry [aut] (R code)
+Maintainer: Irucka Embry <iembry@usgs.gov>
+Description: FEWS river, lake, and pond models used to obtain the
+    evapotranspiration from surface waters in power plants. The FEWS models
+    appeared in 2 USGS reports
+    (http://pubs.er.usgs.gov/publication/sir20145184
+    and http://pubs.er.usgs.gov/publication/sir20135188). Irucka Embry, while a
+    Cherokee Nation Technology Solutions (CNTS) USGS Contractor, translated
+    those functions into R.
+URL: https://github.com/iembry-USGS/FEWSR
+BugReports: https://github.com/iembry-USGS/FEWSR/issues
+License: CC0 | file LICENSE
+Copyright: This software is in the public domain because it contains materials
+    that originally came from the United States Geological Survey, an agency of
+    the United States Department of Interior. For more information, see the
+    official USGS copyright policy at
+    http://www.usgs.gov/visual-id/credit_usgs.html#copyright
+LazyData: true
+Encoding: UTF-8
+RoxygenNote: 6.0.1
+VignetteBuilder: knitr

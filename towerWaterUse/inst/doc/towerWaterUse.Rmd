@@ -1,0 +1,184 @@
+---
+title: "towerWaterUse"
+author: "Kenneth Skinner, ..."
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+# Section 1 : The towerWaterUse package
+
+Description of the towerWaterUse package
+
+## Example links
+
+This is how you create a link to an external URL
+
+[dplyr](https://cran.r-project.org/web/packages/dplyr/index.html)
+
+This is  how you link to a specific part of the vignette
+[Go To Referenced Section](#now-you-are-at-referenced-section)
+
+
+
+## Example R code chunks
+
+To show code but not evaluate
+
+```{r, echo=TRUE, eval=FALSE}
+#install the remotes package (one-time process)
+install.packages("remotes")
+
+#install the importThermoEIA package (one-time process)
+remotes::install_github(repo="https://github.com/rniswon/Thermoelectric",
+                        subdir="importThermoEIA",build_vignettes = T,upgrade = "never")
+
+#load the importThermoEIA package (necessary each time the package is used in a given R session)
+library(importThermoEIA)
+```
+
+To show code and evaluate
+
+```{r, echo=TRUE, eval=TRUE}
+cat("Hello")
+```
+
+To evaluate and NOT show code
+
+```{r, echo=FALSE,eval=TRUE}
+cat("This is output I want as exceuted by R")
+```
+
+## To Create a table
+
+```{r,eval=TRUE,echo=FALSE}
+myTable<-data.frame(column1 = c(1,2,3),myotherColumn = c(2,3,4))
+knitr::kable(myTable,caption = "Table 1: this is my table caption") 
+```
+
+## To format text
+
+<span style="color: red;">This text is red</span>
+
+*This Text is italics*
+
+**This text is bold**
+
+[This link has cheatsheet for text style](https://www.markdownguide.org/cheat-sheet/)
+
+## Now you are at referenced section
+
+This is the section that you linked to in [Example Links](#example-links)
+
+## how to add a data object to your package
+
+First have the data object in your environment and named as you want it to be imported.  Then save it to the data directory like this
+
+```{r,eval=FALSE,echo=TRUE}
+#any type of R data object can be saved, does NOT have to be a data.frame
+#this is just an example
+myDataObject<-data.frame(x=c(1,2,3),y=c(2,3,4))
+
+#save the data to the package
+save(myDataObject,file="./towerWaterUse/data/myDataObject.rda")
+
+```
+
+Then you need to document the data object by going to File>New File>R Documentation and naming your data object and selecting dataset.  This will build a template like [Documentation for data object in importThermoEIA-package](https://github.com/rniswon/Thermoelectric/blob/master/importThermoEIA/man/crosswalk2015.rd).  Fill out the documentation file for your data object and save it to the ./towerWaterUse/man directory.
+
+## R functions
+
+Scripts will need to be converted to functions with arguments that cover all required input fields
+
+If I had a script that look like this
+
+```{r eval=FALSE,echo=TRUE}
+#note the use of the packagename::functionname syntax, this is REQUIRED
+myDataObject<-myDataObject %>% dplyr::mutate(y=y^2)
+firstElementOfVector<-1
+
+outputVector<-firstElementOfVector
+for (i in 1:nrow(myDataObject)){
+  out<-myDataObject[i,]$y
+  outputVector<-c(outputVector,out)
+}
+
+#outputVector is the goal of the script
+
+```
+
+I could convert it to a function like this
+
+```{r eval=FALSE,echo=TRUE}
+
+myFunc<-function(firstElementOfVector = 1){#firstElementOfVector is input argment, 1 is defualt but could be anything.
+  
+  #load data object
+  data("myDataObject")
+  myDataObject<-myDataObject %>% dplyr::mutate(y=y^2)
+
+outputVector<-firstElementOfVector
+for (i in 1:nrow(myDataObject)){
+  out<-myDataObject[i,]$y
+  outputVector<-c(outputVector,out)
+}
+  
+  return(outputVector)#this is what the function will output
+}
+
+```
+
+Functions should be documented in standard roxygen/rmarkdown style.  See [Function from importThermoEIA-package](https://github.com/rniswon/Thermoelectric/blob/master/importThermoEIA/R/import_EIAData.R)  The documentation is at the top.  Function examples must be runable without anything extra.
+
+Function documentation needs to be converted to help files this way
+
+```{r, echo=TRUE, eval=FALSE}
+roxygen2::roxygenise("./towerWaterUse",clean=T)
+#this will generate your NAMESPACE file and all function documentation
+#also creates top level pacakge documentation
+```
+
+## Top level Package documentation 
+
+In addition to the vignette there should be a top level package documentation.  Template is here ./towerWaterUse/R/towerWaterUse-package.R
+
+## Edit the DESCRIPTION file
+
+Add to the Depends: section all dependency packages
+Do NOT delete magrittr from Imports:
+
+## Using the pipe (%>%) in your package
+
+Since most people use this I went a head and added the required stuff for that to work.  Including adding magrittr to the DESCRIPTION file and the utils-pipe.R function in the R directory which creates the pipe.Rd file in the man directory when roxygen2::roxygenise() is run.  Do not delete these elements unless your package NEVER uses pipe.
+
+## creating Unit tests
+
+If you want to go into this, check the structure in here https://github.com/rniswon/Thermoelectric/tree/master/importThermoEIA/tests
+I can also help with this step.
+
+## to test and build your package
+
+Go to Build in Rstudio and Configure Build Tools set the package directory to towerWaterUse.  Then you can Click Build>BuildSourcePackage
+CLOSE Rstudio
+Go to Tools>InstallPackages and select the towerWaterUse_1.0.tar.gz file created with Build Source Package
+Your package will then be loaded and you can use 
+
+```{r eval=FALSE,echo=TRUE}
+library(towerWaterUse)
+?`towerWaterUse-package` #displays top level package documentation
+??towerWateruse  #displays everything related to your package including vignettes
+?myFunc #displays help file for your function called "myFunc" (replace with your function names)
+```

@@ -1,0 +1,5 @@
+Date Date
+segment_no numeric
+SNTemp_C numeric
+month numeric
+wt_avg_c numeric

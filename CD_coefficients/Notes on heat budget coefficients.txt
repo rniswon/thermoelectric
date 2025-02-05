@@ -1,0 +1,128 @@
+This text file explains the accompanying spreadsheet, which calculates monthly and annual weighted values of thermal efficiency and the condenser duty coefficient CD/MWh. Most of the columns of the spreadsheet are involved in censoring individual cells and lines for which the data are not usable for calculating values of coefficients. 
+
+........
+
+File "compileCDintermediate2020_THD_work_2.xlsx" tab "compileCDintermediate2020"
+
+This tab contains the intermediate results from file "compileCDintermediate2020.csv" and additional calculations.
+
+Col C "bogen_dom_fuel" is the dominant fuel; "NA" is used for nuclear plants and "other" for plants with no single dominant fuel. 
+
+Col D "general_mover" is the bogen's prime mover, either "ST" or "NGCC"; 
+
+These allow the division of the data into combined generation categories defined by both the type of prime mover and the dominant fuel. 
+
+Col EH - Fuel and PM are concatenated to form the generation category, "Gen_Cat"
+
+File "compileCDintermediate2020_THD_work_2.xlsx", tab "Generation categories" shows these categories for 2020, with additional notes. 
+
+The columns through EF are the same as the source CSV file:
+
+                                     Columns
+Plant.Code                            A     up to 5-digit EIA specific plant ID
+bogen                                 B     group of interconnected boilers and generators
+bogen_dom_fuel                        C     the dominant fuel
+general_mover                         D     the bogen's prime mover, either "ST" or "NGCC"
+CD                                    E-P
+fuel heat                             Q-AB
+net gen                               AC-AN in MWh - must be converted to MMBtu in heat budget calculations.
+Thermal efficiency (TE)               AO-AZ
+steam heat                            BA-BL
+hotel load = 'nominal losses'         BM-BX
+exported heat                         BY-CJ
+flag_HighTE                           CK-CV - value "1" if TE > 44% for ST, > 58% for NGCC
+flag_ZeroFH_ZeroNetGen                CW-DH - "1" if no fuel burned and non-positive net generation
+Flag_gen_no_fuel                      DI-DT - "1" if no fuel burned and positive net generation 
+Flag_fuel_no_gen                      DU-EF - "1" if fuel was burned and non-positive net generation
+Each of these 4 flag values applies to a single month at a single bogen. They'll be used to censor data used in calculating coefficients.
+
+I've added working columns from EH, leaving a blank column in EG
+
+Gen_Cat                               EH      generation category, concatenates C and D 
+plant exported heat	              EI      The plant on this line exported heat
+Plant with exported heat              EJ      All lines for plants that exported heat are flagged in this column
+ST_CD                                 EK-EV   Recalculated CD for steam bogens other than nukes	
+NGCC_CD                               EW-FH   Recalculated CD for NGCC bogens
+Nuke_CD                               FI-FT   Recalculated CD for nuclear bogens
+Bad_CD                                FU-GF   Recalculated CD differs > 0.2% from CD in columns E-P
+Bad_Month                             GG-GR   This month on this line should not be used in averaging
+Good_CD                               GS-HD   CD for months with no flags set at this bogen
+Good_MWh                              GS-HD   net gen in MWh for months with no flags set at this bogen
+CD/MWh                                HQ-IB   The ratio of CD in MMBtu to net gen in MWh for this bogen, this month
+Good annual CD/MWh                    IC      Annual weighted average CD/MWh at this bogen
+Good_fuel_heat                        ID-IO   Fuel heat for months with no flags set.
+Good annual TE                        IP      Weighted average thermal efficiency at this bogen.
+
+.......
+Gen_Cat (col EH) is used to sort plants into the 9 or more generation categories.
+
+plant with exported heat (col EJ) flags all lines for plants that exported heat, using the plant number.
+ Because of how data for these plants is expressed in this file, they can't be used for estimating coefficients.
+ This flag value applies to all twelve months.
+
+ST_CD, NGCC_CD, and Nuke_CD (cols EK-FT) have to be calculated using 3 different formulae because of how the source file presents data.
+
+Bad_CD - the CD in col E-P is inconsistent with CD calculated from other variables.
+
+Bad_Month - One or more error flags is set for this month at this bogen. 
+
+Good_CD and Good_MWh are used to calculate CD/MWh in months with no flag set.
+
+Good_fuel_heat is used with Good_MWh to calculate a wieghted average thermal efficiency in "Good annual TE"
+........
+
+Note that in no case would I calculate an average value for a coefficient such as CD/MWh or TE by averaging other coefficients. I sum the input variables and divide the sums.
+
+--------------------------------------
+
+The next higher level of integration is to group all bogens with the same generation type at each plant.
+
+The designations of bogens is independent year to year. Additions, retirements, and changes in reporting mean that the same bogen label may shift to an entirely new group of boilers and generators in the following year. Thus bogen is specific to each year, and we can't trust relating multiple years of output at the same bogen. A trend in efficiency or some other coefficient might show a step change in one year due to a shift in what equipment the bogen label designates.
+
+Future improvements could include designating bogens so as to preserve comparability across multiple years.
+
+For now, this means that the next stage of integration above the individual bogen-year needs to be all bogens of the same generation type at the plant.
+
+Consider plant 3 as an example. 
+
+bogen	bogen_dom_fuel	general_mover
+3^7	gas		NGCC
+3^5	coal		ST
+3^4	coal		ST
+3^2	other		ST
+3^6	gas		NGCC
+3^1	gas		ST
+
+values for 3^7 and 3^6 would be summed as "Plant 3 Type gas^NGCC"
+values for 3^5 and 3^4 would be summed as "Plant 3 Type coal^ST"
+value for 3^2 would be used as "Plant 3 Type other^ST", but this bogen has no data
+value for 3^1 would be used as "Plant 3 Type gas^ST"
+
+Back in 2008, this plant looked very different
+
+bogen	bogen_dom_fuel	general_mover
+3^1	coal		ST
+3^2	coal		ST
+3^3	coal		ST
+3^4	coal		ST
+3^5	coal		ST
+
+Values for 3^1 through 3^5 would be summed as "Plant 3 Type coal^ST", and only this generation category is comparable between 2008 and 2020 for plant 3
+
+Monthly values of CD/MWh and TE can be plotted as a 168 month time series at each plant.
+
+Monthly values for all bogens of the same generation type at each plant can also be used to produce an annual weighted average.
+
+These annual averages can be compared as a 14 year time series. Changes in plant equiment will produce changes in coefficients.
+
+--------------------
+
+Above the plant level of integration, we can look at weighted averages for generation types. For example, in a given year, sum all coal^ST CD and divide by the sum of all coal^ST net generation (converted to MMBtu), using only bogen-months that are not flagged. We can look at this as a 168 month time series or use the annual averages as a 14 year time series.
+
+This level of integration is where we determine whether there is a long-term increase in thermal efficiency or a corresponding decrease in production of waste heat (as condenser duty) 
+
+In cells HQ1666-IO1666 I calculate monthly CD/MWh and monthly thermal efficiency for all plants of all types. These show no pattern of seasonal variation through the year, in marked contrast to the water use coefficients Withdrawal/CD and Consumption/CD. We should calculate monthly values for each generation type, but be prepared to find that there is no seasonal trend in heat budget coefficients.
+
+
+
+

@@ -1,0 +1,25 @@
+Package: importThermoEIA
+Type: Package
+Title: Import and Format EIA Thermoelectric Data 
+Version: 1.0
+Date: 
+Author: Lillian Gorman Sanisaca
+Maintainer: Lillian Gorman Sanisaca <lgormansanisaca@usgs.gov>
+Description: The importThermoEIA package pulls data on thermoelectric plants, including Form-923, Form-860, Form-767, Form-906920, and Form-759 from the EIA website and formats data in a standard format including stable table and column names regardless of year data was reported.  The importThermoEIA package includes tools to assist the user in developing crosswalks for EIA import.  The importThermoEIA package formats data to be used by the EIAplantAssociation and condenseryDuty packages.
+VignetteBuilder: knitr
+LazyData: true
+Depends:
+    R(>= 4.0),
+    rmarkdown,
+    testthat
+Imports:
+  magrittr,
+  dplyr,
+  foreign,
+  knitr,
+  openxlsx,
+  readxl
+Config/testthat/edition: 3
+License: CC0
+URL: https://github.com/rniswon/Thermoelectric/
+RoxygenNote: 7.2.3

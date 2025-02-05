@@ -1,0 +1,39 @@
+Package: condenserDuty
+Type: Package
+Title: Condenser Duty Model  
+Version: 1.0
+Date: 
+Author: Lillian Gorman Sanisaca and Victor Roland
+Maintainer: Lillian Gorman Sanisaca <lgormansanisaca@usgs.gov>
+Description: The condenser duty model calcuates the added heatload generated during power generation at thermoelectric power plants. In order to calculate and process the added heat load or condenser duty as it is referred to throughout this document, plant boiler-generator (BOGEN) and boiler generator cooling system (BOGENCOO) must be mapped. This process is complicated and limited by the accuracy of the input data. As a disclaimer, manual edits to input data and/or BOGEN and BOGENCOO output association keys may be required for accurate condenser duty calculations. This model automates this process but is limited in that manual adjustments to BOGEN and BOGENCOO assignments are required. 
+Roxygen: list(markdown=TRUE)
+VignetteBuilder: knitr
+Depends:
+    R(>= 3.5),
+    methods
+Imports:
+  importThermoEIA,
+  EIAplantAssociation,
+  plyr,
+  dplyr,
+  purrr,
+  qdapTools,
+  sjmisc,
+  reshape2,
+  RColorBrewer,
+  ggplot2,
+  knitr,
+  testthat,
+  openxlsx,
+  readxl,
+  remotes,
+  tidyr,
+  stringr,
+  lubridate,
+  Metrics,
+  hydroGOF, 
+  purrr
+Suggests:
+License: CC0
+URL:
+RoxygenNote: 7.2.3

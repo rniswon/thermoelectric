@@ -1,0 +1,14 @@
+USGS Data Release "Water withdrawal and consumption estimates for thermoelectric power plants in the United States, 2015 (version 1.1, February 2021)"
+
+Citation:  Harris, M.A., and Diehl, T.H., 2019, Water withdrawal and consumption estimates for thermoelectric power plants in the United States, 2015 (version 1.1, February 2021): U.S. Geological Survey data release, https://doi.org/10.5066/P9V0T04B.
+
+Revision History
+First release:  September 2019
+Revision 1.1:  February 2021
+
+Revision 1.1
+In September 2020, a USGS hydrologist used the environmental variables provided in this data release on another project and noticed that the wet-bulb air temperature data were higher than the dry-bulb air temperature data.  The lead author was notified that there was an error in the data labels.  The physical properties of air temperatures dictate that wet-bulb air temperatures are always lower then dry-bulb air temperatures unless the air is completely saturated (100% relative humidity) wherein the two air temperatures would be identical.  The lead author reviewed the original "2015_TE_Input_Data" files and determined that the hydrologist was indeed correct.  In the original data release, the author mistakenly labeled the dry-bulb air temperature data columns (DB_Jan, DB_Feb, etc) as wet-bulb air temperature data (WB_Jan, WB_Feb, etc), and the wet-bulb air temperature data columns as dry-bulb air temperature data.  This only affected the "2015_TE_Input_Data" files and not the "2015_TE_Model_Estimates" files.  The final water-withdrawal and consumption estimates published in the "2015_TE_Model_Estimates" files were correctly calculated according to the methods described in U.S. Geological Survey Scientific Investigations Report 2019–5103.
+
+Changes from previous version:
+1)  The column headings for the wet-bulb air temperature data and dry-bulb air temperature data in the “2015_TE_Input_Data” file have been transposed from the original version of the data release.
+

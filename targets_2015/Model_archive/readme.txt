@@ -1,0 +1,4 @@
+The tower model R scripts were used for the 2015 estimates. Input and output are archived in the tower folder. The FEWSR (R scripts) were not used for the 2015 estimates, instead the spreadsheet model was used (within the fews folder, a separate spreadsheet for each river, pond, and lake). FEWSR (R scripts) as they were in 2019 (author, Iruka Embry) are archived in the fews folder.
+
+The 2015_TE_Model_Estimates.csv were published as a data release and include all outputs. Version_1.1_metadata and Version_1.1_Revision_History contain metadata regarding the 2015_TE_Model_Estimates as well as the input (../input/Version_1.1_2015_TE_input_data)
+https://www.sciencebase.gov/catalog/item/5f63be9a82ce38aaa23b0739

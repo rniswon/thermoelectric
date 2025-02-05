@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Kenneth Skinner, …" />
+
+<meta name="date" content="2023-01-04" />
+
+<title>towerWaterUse</title>
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">towerWaterUse</h1>
+<h4 class="author">Kenneth Skinner, …</h4>
+<h4 class="date">2023-01-04</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#section-1-the-towerwateruse-package">Section 1 : The towerWaterUse package</a><ul>
+<li><a href="#example-links">Example links</a></li>
+<li><a href="#example-r-code-chunks">Example R code chunks</a></li>
+<li><a href="#to-create-a-table">To Create a table</a></li>
+<li><a href="#to-format-text">To format text</a></li>
+<li><a href="#now-you-are-at-referenced-section">Now you are at referenced section</a></li>
+<li><a href="#how-to-add-a-data-object-to-your-package">how to add a data object to your package</a></li>
+<li><a href="#r-functions">R functions</a></li>
+<li><a href="#top-level-package-documentation">Top level Package documentation</a></li>
+<li><a href="#edit-the-description-file">Edit the DESCRIPTION file</a></li>
+<li><a href="#using-the-pipe-in-your-package">Using the pipe (%&gt;%) in your package</a></li>
+<li><a href="#creating-unit-tests">creating Unit tests</a></li>
+<li><a href="#to-test-and-build-your-package">to test and build your package</a></li>
+</ul></li>
+</ul>
+</div>
+
+<div id="section-1-the-towerwateruse-package" class="section level1">
+<h1>Section 1 : The towerWaterUse package</h1>
+<p>Description of the towerWaterUse package</p>
+<div id="example-links" class="section level2">
+<h2>Example links</h2>
+<p>This is how you create a link to an external URL</p>
+<p><a href="https://cran.r-project.org/web/packages/dplyr/index.html">dplyr</a></p>
+<p>This is how you link to a specific part of the vignette <a href="#now-you-are-at-referenced-section">Go To Referenced Section</a></p>
+</div>
+<div id="example-r-code-chunks" class="section level2">
+<h2>Example R code chunks</h2>
+<p>To show code but not evaluate</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="co">#install the remotes package (one-time process)</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">install.packages</span>(<span class="st">&quot;remotes&quot;</span>)</a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="co">#install the importThermoEIA package (one-time process)</span></a>
+<a class="sourceLine" id="cb1-5" title="5">remotes<span class="op">::</span><span class="kw">install_github</span>(<span class="dt">repo=</span><span class="st">&quot;https://github.com/rniswon/Thermoelectric&quot;</span>,</a>
+<a class="sourceLine" id="cb1-6" title="6">                        <span class="dt">subdir=</span><span class="st">&quot;importThermoEIA&quot;</span>,<span class="dt">build_vignettes =</span> T,<span class="dt">upgrade =</span> <span class="st">&quot;never&quot;</span>)</a>
+<a class="sourceLine" id="cb1-7" title="7"></a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="co">#load the importThermoEIA package (necessary each time the package is used in a given R session)</span></a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="kw">library</span>(importThermoEIA)</a></code></pre></div>
+<p>To show code and evaluate</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">cat</span>(<span class="st">&quot;Hello&quot;</span>)</a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="co">#&gt; Hello</span></a></code></pre></div>
+<p>To evaluate and NOT show code</p>
+<pre><code>#&gt; This is output I want as exceuted by R</code></pre>
+</div>
+<div id="to-create-a-table" class="section level2">
+<h2>To Create a table</h2>
+<table>
+<caption>Table 1: this is my table caption</caption>
+<thead>
+<tr class="header">
+<th align="right">column1</th>
+<th align="right">myotherColumn</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">4</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="to-format-text" class="section level2">
+<h2>To format text</h2>
+<p><span style="color: red;">This text is red</span></p>
+<p><em>This Text is italics</em></p>
+<p><strong>This text is bold</strong></p>
+<p><a href="https://www.markdownguide.org/cheat-sheet/">This link has cheatsheet for text style</a></p>
+</div>
+<div id="now-you-are-at-referenced-section" class="section level2">
+<h2>Now you are at referenced section</h2>
+<p>This is the section that you linked to in <a href="#example-links">Example Links</a></p>
+</div>
+<div id="how-to-add-a-data-object-to-your-package" class="section level2">
+<h2>how to add a data object to your package</h2>
+<p>First have the data object in your environment and named as you want it to be imported. Then save it to the data directory like this</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="co">#any type of R data object can be saved, does NOT have to be a data.frame</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="co">#this is just an example</span></a>
+<a class="sourceLine" id="cb4-3" title="3">myDataObject&lt;-<span class="kw">data.frame</span>(<span class="dt">x=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),<span class="dt">y=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>))</a>
+<a class="sourceLine" id="cb4-4" title="4"></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="co">#save the data to the package</span></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="kw">save</span>(myDataObject,<span class="dt">file=</span><span class="st">&quot;./towerWaterUse/data/myDataObject.rda&quot;</span>)</a></code></pre></div>
+<p>Then you need to document the data object by going to File&gt;New File&gt;R Documentation and naming your data object and selecting dataset. This will build a template like <a href="https://github.com/rniswon/Thermoelectric/blob/master/importThermoEIA/man/crosswalk2015.rd">Documentation for data object in importThermoEIA-package</a>. Fill out the documentation file for your data object and save it to the ./towerWaterUse/man directory.</p>
+</div>
+<div id="r-functions" class="section level2">
+<h2>R functions</h2>
+<p>Scripts will need to be converted to functions with arguments that cover all required input fields</p>
+<p>If I had a script that look like this</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="co">#note the use of the packagename::functionname syntax, this is REQUIRED</span></a>
+<a class="sourceLine" id="cb5-2" title="2">myDataObject&lt;-myDataObject <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">y=</span>y<span class="op">^</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb5-3" title="3">firstElementOfVector&lt;-<span class="dv">1</span></a>
+<a class="sourceLine" id="cb5-4" title="4"></a>
+<a class="sourceLine" id="cb5-5" title="5">outputVector&lt;-firstElementOfVector</a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(myDataObject)){</a>
+<a class="sourceLine" id="cb5-7" title="7">  out&lt;-myDataObject[i,]<span class="op">$</span>y</a>
+<a class="sourceLine" id="cb5-8" title="8">  outputVector&lt;-<span class="kw">c</span>(outputVector,out)</a>
+<a class="sourceLine" id="cb5-9" title="9">}</a>
+<a class="sourceLine" id="cb5-10" title="10"></a>
+<a class="sourceLine" id="cb5-11" title="11"><span class="co">#outputVector is the goal of the script</span></a></code></pre></div>
+<p>I could convert it to a function like this</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"></a>
+<a class="sourceLine" id="cb6-2" title="2">myFunc&lt;-<span class="cf">function</span>(<span class="dt">firstElementOfVector =</span> <span class="dv">1</span>){<span class="co">#firstElementOfVector is input argment, 1 is defualt but could be anything.</span></a>
+<a class="sourceLine" id="cb6-3" title="3">  </a>
+<a class="sourceLine" id="cb6-4" title="4">  <span class="co">#load data object</span></a>
+<a class="sourceLine" id="cb6-5" title="5">  <span class="kw">data</span>(<span class="st">&quot;myDataObject&quot;</span>)</a>
+<a class="sourceLine" id="cb6-6" title="6">  myDataObject&lt;-myDataObject <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">y=</span>y<span class="op">^</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb6-7" title="7"></a>
+<a class="sourceLine" id="cb6-8" title="8">outputVector&lt;-firstElementOfVector</a>
+<a class="sourceLine" id="cb6-9" title="9"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(myDataObject)){</a>
+<a class="sourceLine" id="cb6-10" title="10">  out&lt;-myDataObject[i,]<span class="op">$</span>y</a>
+<a class="sourceLine" id="cb6-11" title="11">  outputVector&lt;-<span class="kw">c</span>(outputVector,out)</a>
+<a class="sourceLine" id="cb6-12" title="12">}</a>
+<a class="sourceLine" id="cb6-13" title="13">  </a>
+<a class="sourceLine" id="cb6-14" title="14">  <span class="kw">return</span>(outputVector)<span class="co">#this is what the function will output</span></a>
+<a class="sourceLine" id="cb6-15" title="15">}</a></code></pre></div>
+<p>Functions should be documented in standard roxygen/rmarkdown style. See <a href="https://github.com/rniswon/Thermoelectric/blob/master/importThermoEIA/R/import_EIAData.R">Function from importThermoEIA-package</a> The documentation is at the top. Function examples must be runable without anything extra.</p>
+<p>Function documentation needs to be converted to help files this way</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">roxygen2<span class="op">::</span><span class="kw">roxygenise</span>(<span class="st">&quot;./towerWaterUse&quot;</span>,<span class="dt">clean=</span>T)</a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="co">#this will generate your NAMESPACE file and all function documentation</span></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="co">#also creates top level pacakge documentation</span></a></code></pre></div>
+</div>
+<div id="top-level-package-documentation" class="section level2">
+<h2>Top level Package documentation</h2>
+<p>In addition to the vignette there should be a top level package documentation. Template is here ./towerWaterUse/R/towerWaterUse-package.R</p>
+</div>
+<div id="edit-the-description-file" class="section level2">
+<h2>Edit the DESCRIPTION file</h2>
+<p>Add to the Depends: section all dependency packages Do NOT delete magrittr from Imports:</p>
+</div>
+<div id="using-the-pipe-in-your-package" class="section level2">
+<h2>Using the pipe (%&gt;%) in your package</h2>
+<p>Since most people use this I went a head and added the required stuff for that to work. Including adding magrittr to the DESCRIPTION file and the utils-pipe.R function in the R directory which creates the pipe.Rd file in the man directory when roxygen2::roxygenise() is run. Do not delete these elements unless your package NEVER uses pipe.</p>
+</div>
+<div id="creating-unit-tests" class="section level2">
+<h2>creating Unit tests</h2>
+<p>If you want to go into this, check the structure in here <a href="https://github.com/rniswon/Thermoelectric/tree/master/importThermoEIA/tests" class="uri">https://github.com/rniswon/Thermoelectric/tree/master/importThermoEIA/tests</a> I can also help with this step.</p>
+</div>
+<div id="to-test-and-build-your-package" class="section level2">
+<h2>to test and build your package</h2>
+<p>Go to Build in Rstudio and Configure Build Tools set the package directory to towerWaterUse. Then you can Click Build&gt;BuildSourcePackage CLOSE Rstudio Go to Tools&gt;InstallPackages and select the towerWaterUse_1.0.tar.gz file created with Build Source Package Your package will then be loaded and you can use</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">library</span>(towerWaterUse)</a>
+<a class="sourceLine" id="cb8-2" title="2">?<span class="st">`</span><span class="dt">towerWaterUse-package</span><span class="st">`</span> <span class="co">#displays top level package documentation</span></a>
+<a class="sourceLine" id="cb8-3" title="3">??towerWateruse  <span class="co">#displays everything related to your package including vignettes</span></a>
+<a class="sourceLine" id="cb8-4" title="4">?myFunc <span class="co">#displays help file for your function called &quot;myFunc&quot; (replace with your function names)</span></a></code></pre></div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
